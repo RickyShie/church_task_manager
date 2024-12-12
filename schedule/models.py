@@ -35,6 +35,28 @@ class Teacher(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     region = models.CharField(max_length=200, null=True, blank=True)  # Optional: region or area
 
+    def clean(self):
+        """
+        Ensure only one "Class Coordinator" exists per department.
+        """
+        if self.position and self.position.name == "班負責":
+            existing_coordinator = Teacher.objects.filter(
+                department=self.department,
+                position__name="班負責"
+            ).exclude(id=self.id)  # Exclude the current instance
+
+            if existing_coordinator.exists():
+                raise ValidationError(
+                    f"A Class Coordinator already exists for the {self.department.name} department."
+                )
+
+    def save(self, *args, **kwargs):
+        """
+        Call the clean method before saving.
+        """
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -77,7 +99,7 @@ class Activity(models.Model):
         verbose_name_plural = "Activities"
 
     def __str__(self):
-        return f"{self.activity_type} for {self.schedule}"
+        return f"{self.class_type} for {self.schedule}"
 
 
 # RoleAssignment Model
