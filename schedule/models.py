@@ -33,6 +33,13 @@ class Teacher(models.Model):
         return self.name
 
 
+class Position(models.Model):
+    name = models.CharField(max_length=200, unique=True)  # Position name, e.g., "Class Manager", "Teacher", "Assistant"
+    description = models.TextField(null=True, blank=True)  # Optional description about the position
+
+    def __str__(self):
+        return self.name
+
 # Schedule Model
 class Schedule(models.Model):
     CLASS_TYPE_CHOICES = [
