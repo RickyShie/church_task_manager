@@ -9,36 +9,35 @@ class Department(models.Model):
     def __str__(self):
         return self.name
 
-
-# Teacher Model
-class Teacher(models.Model):
-    STATUS_CHOICES = [
-        ('Active', '擔任中'),
-        ('Inactive', '休息中'),
-        ('New Teacher', '新任'),
-    ]
-    GENDER_CHOICES = [
-        ('Male', '男'),
-        ('Female', '女'),
-    ]
-
-    name = models.CharField(max_length=200)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Active')
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)
-    role = models.CharField(max_length=200)  # Role such as Teacher, Assistant, etc.
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    region = models.CharField(max_length=200, null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-
 class Position(models.Model):
     name = models.CharField(max_length=200, unique=True)  # Position name, e.g., "Class Manager", "Teacher", "Assistant"
     description = models.TextField(null=True, blank=True)  # Optional description about the position
 
     def __str__(self):
         return self.name
+
+
+# Teacher Model
+class Teacher(models.Model):
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+    ]
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+    ]
+
+    name = models.CharField(max_length=200)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Active')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)  # The department a teacher belongs to
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True)  # Link to Position model
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    region = models.CharField(max_length=200, null=True, blank=True)  # Optional: region or area
+
+    def __str__(self):
+        return self.name
+
 
 # Schedule Model
 class Schedule(models.Model):
