@@ -1,24 +1,33 @@
 from django.contrib import admin
-
-from .models import (Task, Department, Role, Status)
+from .models import (Department, Teacher, Schedule, Activity, RoleAssignment)
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     ordering = ["id"]
-    list_display = ["id", "department_name"]
+    list_display = ["id", "name", "description"]
 
-
-@admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
     ordering = ["id"]
-    list_display = ["id", "task_name"]
+    list_display = ["id", "status", "department", "role", "name", "gender"]
+    actions = ["delete_selected"]
 
-@admin.register(Role)
-class RoleAdmin(admin.ModelAdmin):
-    ordering = ["id"]
-    list_display = ["id", "role_name"]
 
-@admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
     ordering = ["id"]
-    list_display = ["id", "status"]
+    list_display = ["id", "date", "start_time", "end_time", "department", "class_type", "topic"]
+    actions = ["delete_selected"]
+
+
+# @admin.register(Activity)
+# class ActivityAdmin(admin.ModelAdmin):
+#     ordering = ["id"]
+#     list_display = ["id", "class_type", "details", "schedule"]
+
+
+@admin.register(RoleAssignment)
+class RoleAssignmentAdmin(admin.ModelAdmin):
+    ordering = ["id"]
+    list_display = ["id", "person", "role", "schedule"]
+    actions = ["delete_selected"]
