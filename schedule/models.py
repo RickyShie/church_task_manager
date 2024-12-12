@@ -8,3 +8,6 @@ class Department(models.Model):
 
 class Role(models.Model):
     role_name = models.CharField(max_length=200, null=False, unique=True)
+
+class Status(models.Model):
+    status = models.CharField(max_length=200, null=False, unique=True)
