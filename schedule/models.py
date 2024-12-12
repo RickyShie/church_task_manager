@@ -22,6 +22,7 @@ class Teacher(models.Model):
     STATUS_CHOICES = [
         ('Active', 'Active'),
         ('Inactive', 'Inactive'),
+        ('New', 'New'),  # Adding the new tuple
     ]
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -30,29 +31,31 @@ class Teacher(models.Model):
 
     name = models.CharField(max_length=200)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Active')
-    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True)  # The department a teacher belongs to
-    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True)  # Link to Position model
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)  # Can be nullable
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True)  # Can be nullable
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     region = models.CharField(max_length=200, null=True, blank=True)  # Optional: region or area
 
     def clean(self):
         """
-        Ensure only one "Class Coordinator" exists per department.
+        Enforce rules for department and position fields based on the status:
+        - 'Active': department and position must NOT be blank.
+        - 'New': department and position CAN be blank.
+        - 'Inactive': department and position MUST be blank.
         """
-        if self.position and self.position.name == "班負責":
-            existing_coordinator = Teacher.objects.filter(
-                department=self.department,
-                position__name="班負責"
-            ).exclude(id=self.id)  # Exclude the current instance
-
-            if existing_coordinator.exists():
-                raise ValidationError(
-                    f"A Class Coordinator already exists for the {self.department.name} department."
-                )
+        if self.status == 'Active':
+            if not self.department or not self.position:
+                raise ValidationError("Active teachers must have both a department and a position.")
+        elif self.status == 'Inactive':
+            if self.department or self.position:
+                raise ValidationError("Inactive teachers must NOT have a department or position.")
+        elif self.status == 'New':
+            # 'New' teachers can have department and position left blank
+            pass
 
     def save(self, *args, **kwargs):
         """
-        Call the clean method before saving.
+        Call clean before saving to validate constraints.
         """
         self.clean()
         super().save(*args, **kwargs)
