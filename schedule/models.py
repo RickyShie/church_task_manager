@@ -116,6 +116,17 @@ class RoleAssignment(models.Model):
         Prevent assigning a teacher to multiple tasks with overlapping time slots,
         and ensure a teacher can only have one role in a department on the same day.
         """
+        # Ensure the schedule is not duplicated
+        schedule_data = {
+            'date': self.schedule.date,
+            'start_time': self.schedule.start_time,
+            'end_time': self.schedule.end_time,
+            'department': self.schedule.department,
+        }
+        existing_schedule = Schedule.objects.filter(**schedule_data).exclude(id=self.schedule.id).exists()
+        if existing_schedule:
+            raise ValidationError("A scheduel with the same date, time, and department already exists.")
+
         if self.person:
             # Check for overlapping time slots
             conflicting_assignments = RoleAssignment.objects.filter(
