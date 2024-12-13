@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import (Department, Teacher, Schedule, Position, RoleAssignment)
-from .forms import RoleAssignmentInlineFormset
+from .models import (Department, Teacher, Schedule, Position, ClassRole, RoleAssignment)
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
@@ -27,6 +26,12 @@ class PositionAdmin(admin.ModelAdmin):
     actions = ["delete_selected"]
 
 
+@admin.register(ClassRole)
+class ClassRoleAdmin(admin.ModelAdmin):
+    ordering = ["id"]
+    list_display = ["id", "name"]
+
+
 @admin.register(RoleAssignment)
 class RoleAssignmentAdmin(admin.ModelAdmin):
     ordering = ["id"]
@@ -34,16 +39,9 @@ class RoleAssignmentAdmin(admin.ModelAdmin):
     actions = ["delete_selected"]
 
 
-# Use Inline Models
-class RoleAssignmentInline(admin.TabularInline):
-    model = RoleAssignment
-    formset = RoleAssignmentInlineFormset
-    extra = 1
-
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     ordering = ["id"]
     list_display = ["id", "date", "start_time", "end_time", "department", "class_type", "topic"]
     list_editable = ["date"]
-    inlines = [RoleAssignmentInline]  # Include RoleAssignment inline
     actions = ["delete_selected"]
