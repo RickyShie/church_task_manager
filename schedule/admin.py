@@ -13,6 +13,7 @@ class TeacherAdmin(admin.ModelAdmin):
     list_editable = ["status", "department", "position", "name", "gender", "region"]
     actions = ["delete_selected"]
     search_fields = ["name", "region", "department__name", "position__name"]
+    list_filter = ["status", "department", "gender", "region"]
 
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
