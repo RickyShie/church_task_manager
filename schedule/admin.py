@@ -9,6 +9,10 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ("Personal Information", {"fields": ("name", "gender", "region")}),
+        ("Professional Information", {"fields": ("status", "department", "position")})
+    )
     ordering = ["id"]
     list_display = ["id", "status", "department", "position", "name", "gender", "region"]
     list_editable = ["status", "department", "position", "name", "gender", "region"]
