@@ -16,6 +16,13 @@ class Position(models.Model):
     def __str__(self):
         return self.name
 
+# ClassRole Model
+class ClassRole(models.Model):
+    name = models.CharField(max_length=200, unique=True)  # Role name, e.g., "Teacher", "Assistant", "Admin"
+    description = models.TextField(null=True, blank=True)  # Optional description for the role
+
+    def __str__(self):
+        return self.name
 
 # Teacher Model
 class Teacher(models.Model):
@@ -108,7 +115,7 @@ class Activity(models.Model):
 # RoleAssignment Model
 class RoleAssignment(models.Model):
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
-    role = models.CharField(max_length=200)  # Role such as Teacher, Assistant, etc.
+    role = models.ForeignKey(ClassRole, on_delete=models.CASCADE)  # Link to the role
     person = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
 
     def clean(self):
