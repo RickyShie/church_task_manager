@@ -70,7 +70,8 @@ class Teacher(models.Model):
     def __str__(self):
         return self.name
 
-
+# Here is my Schedule Model, I wonder how to prevent the admin user from inserting duplicate schedules \
+# with the same date, start_time, end_time, depart_ment, and class_type into the database.
 # Schedule Model
 class Schedule(models.Model):
     CLASS_TYPE_CHOICES = [
@@ -96,6 +97,14 @@ class Schedule(models.Model):
 
     def __str__(self):
         return f"{self.date} ({self.start_time} - {self.end_time}) - {self.department} - {self.class_type}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['date', 'department', 'class_type'],
+                name='unique_schedule_constraint'
+            )
+        ]
 
 
 # Activity Model
