@@ -67,9 +67,9 @@ class Teacher(models.Model):
 # Schedule Model
 class Schedule(models.Model):
     CLASS_TYPE_CHOICES = [
-        ('Worship', '崇拜'),
-        ('Hymn', '詩頌'),
-        ('Extra Activity', '共習'),
+        ('崇拜', '崇拜'),
+        ('詩頌', '詩頌'),
+        ('共習', '共習'),
     ]
 
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
@@ -88,7 +88,7 @@ class Schedule(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.department.name} - {self.date} ({self.start_time} - {self.end_time})"
+        return f"{self.date} ({self.start_time} - {self.end_time}) - {self.department} - {self.class_type}"
 
 
 # Activity Model
@@ -113,9 +113,11 @@ class RoleAssignment(models.Model):
 
     def clean(self):
         """
-        Prevent assigning a teacher to multiple tasks that have overlapping time slots.
+        Prevent assigning a teacher to multiple tasks with overlapping time slots,
+        and ensure a teacher can only have one role in a department on the same day.
         """
         if self.person:
+            # Check for overlapping time slots
             conflicting_assignments = RoleAssignment.objects.filter(
                 person=self.person,
                 schedule__date=self.schedule.date,
@@ -127,11 +129,27 @@ class RoleAssignment(models.Model):
             if conflicting_assignments.exists():
                 conflict = conflicting_assignments.first()  # Get the first conflict
                 department_name = conflict.schedule.department.name if conflict.schedule.department else "Unknown Department"
-                role_name = conflict.role
-                start_time = conflict.schedule.start_time
-                end_time = conflict.schedule.end_time
+                role_name = conflict.role  # Retrieve the role name
+
                 raise ValidationError(
-                    f"""{self.person.name} is already assigned as a '{role_name}' in the '{department_name}' department from {start_time} to {end_time}."""
+                    f"{self.person.name} is already assigned as a '{role_name}' in the '{department_name}' department "
+                    f"from {conflict.schedule.start_time} to {conflict.schedule.end_time}."
+                )
+
+            # Check if the teacher is assigned to another role in the same department on the same day
+            same_department_assignments = RoleAssignment.objects.filter(
+                person=self.person,
+                schedule__date=self.schedule.date,
+                schedule__department=self.schedule.department
+            ).exclude(id=self.id)  # Exclude the current instance being validated
+
+            if same_department_assignments.exists():
+                existing_role = same_department_assignments.first().role
+                department_name = self.schedule.department.name if self.schedule.department else "Unknown Department"
+
+                raise ValidationError(
+                    f"{self.person.name} is already assigned to the role '{existing_role}' in the '{department_name}' department "
+                    f"on {self.schedule.date}. A teacher can only have one role per department per day."
                 )
 
     def save(self, *args, **kwargs):
