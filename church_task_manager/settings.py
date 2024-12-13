@@ -76,8 +76,12 @@ WSGI_APPLICATION = "church_task_manager.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'church_task_manager',
+        'USER': 'postgres',
+        'PASSWORD': 'Yaemiko0720',
+        'HOST': 'localhost',  # or the IP address of your PostgreSQL server
+        'PORT': '5432',       # Default PostgreSQL port
     }
 }
 
