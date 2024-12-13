@@ -125,9 +125,13 @@ class RoleAssignment(models.Model):
             ).exclude(id=self.id)  # Exclude the current instance being validated
 
             if conflicting_assignments.exists():
+                conflict = conflicting_assignments.first()  # Get the first conflict
+                department_name = conflict.schedule.department.name if conflict.schedule.department else "Unknown Department"
+                role_name = conflict.role
+                start_time = conflict.schedule.start_time
+                end_time = conflict.schedule.end_time
                 raise ValidationError(
-                    f"{self.person.name} is already assigned to another task "
-                    f"from {conflicting_assignments[0].schedule.start_time} to {conflicting_assignments[0].schedule.end_time}."
+                    f"""{self.person.name} is already assigned as a '{role_name}' in the '{department_name}' department from {start_time} to {end_time}."""
                 )
 
     def save(self, *args, **kwargs):
