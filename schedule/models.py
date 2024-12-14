@@ -27,13 +27,13 @@ class ClassRole(models.Model):
 # Teacher Model
 class Teacher(models.Model):
     STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('Inactive', 'Inactive'),
-        ('New', 'New'),  # Adding the new tuple
+        ('擔任中', '擔任中'),
+        ('休息中', '休息中'),
+        ('新任', '新任'),  # Adding the new tuple
     ]
     GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female'),
+        ('男', '男'),
+        ('女', '女'),
     ]
 
     name = models.CharField(max_length=200)
@@ -70,8 +70,6 @@ class Teacher(models.Model):
     def __str__(self):
         return self.name
 
-# Here is my Schedule Model, I wonder how to prevent the admin user from inserting duplicate schedules \
-# with the same date, start_time, end_time, depart_ment, and class_type into the database.
 # Schedule Model
 class Schedule(models.Model):
     CLASS_TYPE_CHOICES = [
