@@ -98,7 +98,7 @@ class Schedule(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.date} ({self.start_time} - {self.end_time}) - {self.department} - {self.class_type}"
+        return f"{self.date} - {self.department} - {self.class_type}"
 
     class Meta:
         constraints = [
