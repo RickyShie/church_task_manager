@@ -81,13 +81,17 @@ class Schedule(models.Model):
     ]
 
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    date = models.DateField(null=False, blank=False)
+    start_time = models.TimeField(null=False, blank=False)
+    end_time = models.TimeField(null=False, blank=False)
     topic = models.CharField(max_length=500, null=True, blank=True)
     class_type = models.CharField(max_length=50, choices=CLASS_TYPE_CHOICES)
 
     def clean(self):
+        if not self.start_time:
+            raise ValidationError("Start time must not be null.")
+        if not self.end_time:
+            raise ValidationError("End time must not be null.")
         if self.end_time <= self.start_time:
             raise ValidationError("End time must be later than start time.")
 
