@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import DateFieldListFilter
 from .models import (Department, Teacher, Schedule, Position, ClassRole, RoleAssignment)
-from datetime import date, timedelta, datetime
+from datetime import timedelta, datetime
 
 WORSHIP_CLASS = "崇拜"
 HYMN_CLASS = "詩頌"
@@ -191,6 +191,9 @@ class RoleAssignmentAdmin(admin.ModelAdmin):
     list_display = ["id", "person", "role", "schedule"]
     actions = ["delete_selected"]
 
+    # Enable live search for the 'schedule' field
+    autocomplete_fields = ["schedule"]
+
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
@@ -200,3 +203,4 @@ class ScheduleAdmin(admin.ModelAdmin):
     list_filter = [("date", DateFieldListFilter), "department", "class_type"]
     date_hierarchy = "date"
     actions = [generate_schedules]
+    search_fields = ["date", "department__name", "class_type"]  # Enable search for these fields
