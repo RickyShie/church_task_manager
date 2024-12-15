@@ -1,5 +1,34 @@
 {% extends 'schedule/base.html' %}
-
 {% block content %}
-    <h2>Hello World</h2>
+<table class="table table-striped">
+    <thead>
+      <tr>
+        {% comment %} <th scope="col">Schedule ID</th> {% endcomment %}
+        <th scope="col">日期</th>
+        <th scope="col">開始時間</th>
+        <th scope="col">結束時間</th>
+        <th scope="col">課程類別</th>
+        <th scope="col">Roles</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for schedule in schedules %}
+        <tr>
+            <td>{{ schedule.date }}</td>
+            <td>{{ schedule.start_time}}</td>
+            <td>{{ schedule.end_time}}</td>
+            <td>{{ schedule.class_type}}</td>
+            <td>
+                {% if schedule.role_assignments.all %}
+                    {% for role_assignment in schedule.role_assignments.all %}
+                        {{ role_assignment.role.name }}: {{ role_assignment.person.name }}<br>
+                    {% endfor %}
+                {% else %}
+                    尚未更新
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

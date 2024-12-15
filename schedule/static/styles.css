@@ -1,0 +1,62 @@
+/* Center nav links */
+.navbar-nav {
+    justify-content: center; /* Centers the nav items in the navbar */
+}
+
+/* Default style for nav links */
+.nav-hover {
+    position: relative; /* Allows the card to be positioned relative to the link */
+    padding: 10px 15px; /* Adds padding to the links for better spacing */
+    color: black; /* Keeps the text color black */
+    text-align: center; /* Ensures text alignment for links */
+    z-index: 2; /* Ensures the text stays above the card */
+}
+
+/* Hover effect: Add a background "card" */
+.nav-hover:hover::before {
+    content: ""; /* Creates the card element */
+    position: absolute; /* Positions the card relative to the nav link */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(200, 200, 200, 0.5); /* Light gray with slight transparency */
+    border-radius: 10px; /* Rounded corners for the card */
+    z-index: 1; /* Ensures the card is behind the text */
+    transition: all 0.3s ease; /* Smooth transition for the card effect */
+}
+
+/* Active item styling */
+.nav-item.active .nav-link {
+    background-color: #d3d3d3; /* Light gray background for the active tab */
+    color: black; /* Text color remains black */
+    border-radius: 10px; /* Rounded corners for the active tab */
+    font-weight: bold; /* Makes the active tab's text bold */
+}
+
+/* General navbar styling */
+.navbar {
+    padding: 10px; /* Adds padding to the navbar for better spacing */
+    border-bottom: 2px solid #e0e0e0; /* Optional: Add a subtle border below the navbar */
+}
+
+/* Optional: Adjust font sizes */
+.nav-link {
+    font-size: 16px; /* Sets a uniform font size for all links */
+}
+
+/* Optional: Add margin to separate navbar from page content */
+body {
+    padding-top: 60px; /* Ensures there's spacing between navbar and page content */
+}
+
+/* Ensure the footer is at the bottom of the page */
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 14px;
+}
