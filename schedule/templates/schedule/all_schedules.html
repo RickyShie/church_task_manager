@@ -1,0 +1,54 @@
+{% extends 'schedule/base.html' %}
+{% block content %}
+<table class="table table-striped">
+    <thead>
+      <tr>
+        {% comment %} <th scope="col">Schedule ID</th> {% endcomment %}
+        <th scope="col">日期</th>
+        <th scope="col">開始時間</th>
+        <th scope="col">結束時間</th>
+        <th scope="col">班級類別</th>
+        <th scope="col">課程類別</th>
+        <th scope="col">Roles</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for schedule in schedules %}
+        <tr>
+            <td>{{ schedule.date }}</td>
+            <td>{{ schedule.start_time}}</td>
+            <td>{{ schedule.end_time}}</td>
+            <td>{{ schedule.department.name}}</td>
+            <td>{{ schedule.class_type}}</td>
+            <td>
+                {% if schedule.role_assignments.all %}
+                    {% for role_assignment in schedule.role_assignments.all %}
+                        {{ role_assignment.role.name }}: {{ role_assignment.person.name }}<br>
+                    {% endfor %}
+                {% else %}
+                    No roles assigned
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+      {% comment %} <tr>
+        <th scope="row">1</th>
+        <td>Mark</td>
+        <td>Otto</td>
+        <td>@mdo</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>Jacob</td>
+        <td>Thornton</td>
+        <td>@fat</td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>Larry</td>
+        <td>the Bird</td>
+        <td>@twitter</td>
+      </tr> {% endcomment %}
+    </tbody>
+  </table>
+{% endblock %}
