@@ -1,0 +1,52 @@
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#assignRoleModal">Assign a Role</button>
+
+<div class="modal fade" id="assignRoleModal" tabindex="-1" role="dialog" aria-labelledby="assignRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assignRoleModalLabel">Assign a Role</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <!-- Schedule Dropdown -->
+            <div class="form-group">
+                <label for="schedule-select">Schedule</label>
+                <select class="form-control select2" id="schedule-select" name="schedule" style="width: 100%;">
+                    {% for schedule in schedules %}
+                        <option value="{{ schedule.id }}">{{ schedule.date }} - {{ schedule.department.name }} - {{ schedule.class_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Role Dropdown -->
+            <div class="form-group">
+                <label for="role-select">Role</label>
+                <select class="form-control" id="role-select" name="role">
+                {% for role in roles %}
+                    <option value="{{ role.id }}">{{ role.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+
+            <!-- Person Dropdown -->
+            <div class="form-group">
+                <label for="person-select">Person</label>
+                <select class="form-control" id="person-select" name="person">
+                {% for person in persons %}
+                    <option value="{{ person.id }}">{{ person.name }}</option>
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Assign Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
