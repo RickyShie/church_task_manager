@@ -125,7 +125,7 @@ class Activity(models.Model):
 
 # RoleAssignment Model
 class RoleAssignment(models.Model):
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, related_name='role_assignments')
     role = models.ForeignKey(ClassRole, on_delete=models.CASCADE)  # Link to the role
     person = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
 
