@@ -1,5 +1,13 @@
 {% extends 'schedule/base.html' %}
+{% block assign_role_button %}
+{% include 'includes/popup_modal.html'%}
+{% endblock %}
 {% block content %}
+{% if request.GET.error %}
+<div class="alert alert-danger" role="alert">
+    {{ request.GET.error }}
+</div>
+{% endif %}
 <table class="table table-striped">
     <thead>
       <tr>
