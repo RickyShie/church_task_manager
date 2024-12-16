@@ -144,6 +144,21 @@ class RoleAssignment(models.Model):
         existing_schedule = Schedule.objects.filter(**schedule_data).exclude(id=self.schedule.id).exists()
         if existing_schedule:
             raise ValidationError("A scheduel with the same date, time, and department already exists.")
+        # Allow multiple Teaching Assistants
+        TEACHING_ASSISTANT = '助教'
+
+        # **Added Logic: Prevent duplicate role assignments except for '助教'**
+        if self.role.name != TEACHING_ASSISTANT:  # Highlight Start
+            conflicting_role_assignments = RoleAssignment.objects.filter(
+                schedule=self.schedule,
+                role=self.role
+            ).exclude(id=self.id)
+
+            if conflicting_role_assignments.exists():
+                raise ValidationError(
+                    f"The role '{self.role.name}' has already been assigned in this schedule. "
+                    f"Only '{TEACHING_ASSISTANT}' can be assigned multiple times."
+                )  # Highlight End
 
         if self.person:
             # Check for overlapping time slots
