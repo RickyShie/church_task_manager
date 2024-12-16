@@ -1,0 +1,24 @@
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore logs
+*.log
+
+# Ignore virtual environment
+venv/
+ENV/
+env/
+
+# Ignore Django static and media files
+staticfiles/
+media/
+
+# Ignore SQLite database
+*.sqlite3
+
+# Ignore coverage reports
+htmlcov/
+.coverage
+*.cover
