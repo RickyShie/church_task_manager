@@ -198,7 +198,7 @@ class RoleAssignmentAdmin(admin.ModelAdmin):
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     ordering = ["id"]
-    list_display = ["id", "date", "start_time", "end_time", "department", "class_type", "topic"]
+    list_display = ["id", "date", "start_time", "end_time", "department", "class_type", "topic", "hymn_type", "hymn_number"]
     list_editable = ["date"]
     list_filter = [("date", DateFieldListFilter), "department", "class_type"]
     date_hierarchy = "date"

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Department Model
 class Department(models.Model):
@@ -70,6 +71,15 @@ class Teacher(models.Model):
     def __str__(self):
         return self.name
 
+
+class HymnType(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 # Schedule Model
 class Schedule(models.Model):
     CLASS_TYPE_CHOICES = [
@@ -84,6 +94,8 @@ class Schedule(models.Model):
     end_time = models.TimeField(null=False, blank=False)
     topic = models.CharField(max_length=500, null=True, blank=True)
     class_type = models.CharField(max_length=50, choices=CLASS_TYPE_CHOICES)
+    hymn_type = models.ForeignKey(HymnType, null=True, blank=True, on_delete=models.SET_NULL)
+    hymn_number = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(1000)])
 
     def clean(self):
         if not self.start_time:
@@ -205,11 +217,3 @@ class RoleAssignment(models.Model):
 
     def __str__(self):
         return f"{self.role} - {self.person.name if self.person else 'Unassigned'} for {self.schedule}"
-
-
-class HymnType(models.Model):
-    name = models.CharField(max_length=200, unique=True)
-    description = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return self.name
