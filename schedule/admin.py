@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import DateFieldListFilter
-from .models import (Department, Teacher, Schedule, Position, ClassRole, RoleAssignment, Hymn)
+from .models import (Department, Teacher, Schedule, Position, ClassRole, RoleAssignment, HymnType)
 from datetime import timedelta, datetime
 
 WORSHIP_CLASS = "崇拜"
@@ -205,8 +205,8 @@ class ScheduleAdmin(admin.ModelAdmin):
     actions = [generate_schedules]
     search_fields = ["date", "department__name", "class_type"]  # Enable search for these fields
 
-@admin.register(Hymn)
-class HymnAdmin(admin.ModelAdmin):
+@admin.register(HymnType)
+class HymnTypeAdmin(admin.ModelAdmin):
     ordering = ["id"]
     list_display = ["id", "name", "description"]
     list_editable = ["description"]
