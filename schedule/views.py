@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from .models import Schedule, RoleAssignment, ClassRole, Teacher
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.forms.models import model_to_dict
+import pandas as pd
 
 
 class AllSchedulesView(ListView):
@@ -82,17 +84,109 @@ class DepartmentScheduleView(ListView):
 
         return context
 
+# Here is my HymnClassesView.
+# I wonder if it is possible to pass more than one result to my template
 class HymnClassesView(ListView):
     """
     View to display schedules filtered by department and handle role assignments.
     """
     model = Schedule
-    template_name = 'schedule/department_schedules.html'
+    template_name = 'schedule/hymn_class_schedules.html'
     context_object_name = 'schedules'
+
+    def pivot_schedules(self, schedules):
+        # Initialize a list to hold rows for the DataFrame
+        rows = []
+
+        # Loop through schedules and their role assignments
+        for schedule in schedules:
+            for role_assignment in schedule.role_assignments.all():
+                row = {
+                    'date': schedule.date,
+                    'department': schedule.department.name,
+                    'hymn_type': schedule.hymn_type.name if schedule.hymn_type else None,
+                    'hymn_number': schedule.hymn_number,
+                    'hymn_topic': schedule.topic,
+                    'role': role_assignment.role.name if role_assignment.role else None,
+                    'person': role_assignment.person.name if role_assignment.person else None,
+                }
+                rows.append(row)
+
+        # Convert the list of rows into a DataFrame
+        df = pd.DataFrame(rows)
+
+        result = df.pivot_table(
+                index=['date', 'department', 'hymn_type', 'hymn_number', 'hymn_topic'],
+                columns='role',
+                values='person',
+                aggfunc='first'  # Use 'first' for non-duplicate roles
+            ).reset_index()
+
+        # Flatten MultiIndex columns
+        result.columns.name = None
+        result = result.rename_axis(None, axis=1)
+
+        # print(f"Processed DataFrame:\n{result}")
+        return result
+
+    def reshape_dateframe_to_fit_the_template_format(self, df: pd.DataFrame):
+        # Step 1: Split Data into Two Groups
+        kindergarten_df = df[df['department'] == '幼稚班'].copy()
+        elementary_df = df[df['department'].isin(['幼年班', '幼年班(中日文)', '少年班'])].copy()
+
+        # Step 2: Rename Columns to Distinguish Groups
+        kindergarten_df = kindergarten_df.rename(columns={
+            'hymn_type': 'hymn_type_k',
+            'hymn_number': 'hymn_number_k',
+            'hymn_topic': 'hymn_topic_k',
+            '主領': 'teacher_k',
+            '助教': 'assistant_k',
+            '司琴': 'pianist_k',
+            'department': 'department_k'
+        })
+
+        elementary_df = elementary_df.rename(columns={
+            'hymn_type': 'hymn_type_e',
+            'hymn_number': 'hymn_number_e',
+            'hymn_topic': 'hymn_topic_e',
+            '主領': 'teacher_e',
+            '助教': 'assistant_e',
+            '司琴': 'pianist_e',
+            'department': 'department_e'
+        })
+
+        # Step 3: Merge the Two Groups on 'date'
+        merged_df = pd.merge(kindergarten_df, elementary_df, on='date', how='outer')
+
+        # Step 4: Rearrange Columns for Final Output
+        final_columns = [
+            'date',
+            'hymn_type_k', 'hymn_number_k', 'hymn_topic_k', 'teacher_k', 'assistant_k', 'pianist_k', 'department_k',
+            'hymn_number_e', 'hymn_topic_e', 'teacher_e', 'pianist_e', 'department_e'
+        ]
+        final_df = merged_df[final_columns]
+        return final_df
 
     def get_queryset(self):
 
-        return Schedule.objects.filter(class_type='詩頌').order_by('date', 'start_time')
+        """
+        Process and group hymn class schedules into a list of dictionaries
+        containing relevant details.
+        """
+        # Fetch schedules with related RoleAssignments, Roles, and Persons
+        hymn_schedules = Schedule.objects.filter(
+            class_type='詩頌'
+        ).prefetch_related('role_assignments__role', 'role_assignments__person')
+
+        pivoted_schedules = self.pivot_schedules(hymn_schedules)
+        reformatted_df = self.reshape_dateframe_to_fit_the_template_format(pivoted_schedules)
+
+        # Convert DataFrame to list of dictionaries
+        reformatted_list = reformatted_df.to_dict(orient='records')
+        print(f"reformatted_list: \n{reformatted_list}")
+
+        return reformatted_list
+
 
     def post(self, request, *args, **kwargs):
         schedule_id = request.POST.get('schedule')
@@ -118,7 +212,11 @@ class HymnClassesView(ListView):
                 return redirect('hymn_class_schedules')
 
     def get_context_data(self, **kwargs):
+        """
+        Pass two separate querysets for different department groups to the template.
+        """
         context = super().get_context_data(**kwargs)
+        context['hymn_schedules'] = self.get_queryset()
         context['roles'] = ClassRole.objects.all()
         context['persons'] = Teacher.objects.all()
 
