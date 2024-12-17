@@ -44,12 +44,8 @@ class DepartmentScheduleView(ListView):
 
     def get_queryset(self):
         department_name = self.kwargs.get('department_name')
-        class_type_filter = self.request.GET.get('class_type')
 
-        if class_type_filter == '詩頌課':
-            return Schedule.objects.filter(class_type='詩頌').order_by('date', 'start_time')
-        else:
-            return Schedule.objects.filter(department__name=department_name).order_by('date', 'start_time')
+        return Schedule.objects.filter(department__name=department_name).order_by('date', 'start_time')
 
     def post(self, request, *args, **kwargs):
         schedule_id = request.POST.get('schedule')
@@ -83,5 +79,47 @@ class DepartmentScheduleView(ListView):
         context['roles'] = ClassRole.objects.all()
         context['persons'] = Teacher.objects.all()
         context['department_name'] = department_name
+
+        return context
+
+class HymnClassesView(ListView):
+    """
+    View to display schedules filtered by department and handle role assignments.
+    """
+    model = Schedule
+    template_name = 'schedule/department_schedules.html'
+    context_object_name = 'schedules'
+
+    def get_queryset(self):
+
+        return Schedule.objects.filter(class_type='詩頌').order_by('date', 'start_time')
+
+    def post(self, request, *args, **kwargs):
+        schedule_id = request.POST.get('schedule')
+        role_id = request.POST.get('role')
+        person_id = request.POST.get('person')
+
+        if schedule_id and role_id and person_id:
+            schedule = Schedule.objects.get(id=schedule_id)
+            role = ClassRole.objects.get(id=role_id)
+            person = Teacher.objects.get(id=person_id)
+
+            try:
+                # Create the RoleAssignment object
+                RoleAssignment.objects.create(schedule=schedule, role=role, person=person)
+            except ValidationError as e:
+                # Redirect with an error message as a query parameter
+                error_message = str(e)
+                department_name = self.kwargs.get('department_name')
+                url = f"{reverse('hymn_class_schedules')}?error={error_message}"
+                return HttpResponseRedirect(url)
+            else:
+                # Redirect back to the department schedules page
+                return redirect('hymn_class_schedules')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['roles'] = ClassRole.objects.all()
+        context['persons'] = Teacher.objects.all()
 
         return context
