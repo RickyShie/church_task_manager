@@ -205,3 +205,11 @@ class RoleAssignment(models.Model):
 
     def __str__(self):
         return f"{self.role} - {self.person.name if self.person else 'Unassigned'} for {self.schedule}"
+
+
+class Hymn(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
