@@ -1,0 +1,55 @@
+{%extends 'schedule/base.html'%}
+{% block assign_role_button %}
+    {% include 'includes/popup_modal.html'%}
+{% endblock %}
+{% block content %}
+    {% if request.GET.error %}
+    <div class="alert alert-danger" role="alert">
+        {{ request.GET.error }}
+    </div>
+    {% endif %}
+    <h2 align="center">詩頌課</h2>
+    {{ reformatted_df }}
+    <table class="table table-bordered">
+        <tr>
+            <th class="text-center align-middle" scope="col" colspan="1" rowspan="3">日期</th>
+            <th class="text-center" scope="col" colspan="6">幼稚班</th>
+            <th class="text-center" scope="col" colspan="6">幼少年班</th>
+        </tr>
+        <tr>
+            <th class="text-center" scope="col" colspan="6">11:30~12:00</th>
+            <th class="text-center" scope="col" colspan="6">15:00~15:30</th>
+        </tr>
+        <tr>
+            <th class="text-center" scope="col" colspan="1">詩歌集</th>
+            <th class="text-center" scope="col" colspan="1">曲目</th>
+            <th class="text-center" scope="col" colspan="1">詩頌內容</th>
+            <th class="text-center" scope="col" colspan="1">主領</th>
+            <th class="text-center" scope="col" colspan="1">司琴</th>
+            <th class="text-center" scope="col" colspan="1">助教</th>
+            <th class="text-center" scope="col" colspan="1">班級</th>
+            <th class="text-center" scope="col" colspan="1">曲目</th>
+            <th class="text-center" scope="col" colspan="1">詩頌內容</th>
+            <th class="text-center" scope="col" colspan="1">主領</th>
+            <th class="text-center" scope="col" colspan="1">司琴</th>
+        </tr>
+        <tbody>
+            {% for hymn_schedule in hymn_schedules %}
+            <tr>
+                <td>{{ hymn_schedule.date }}</td>
+                <td>{{ hymn_schedule.hymn_type_k }}</td>
+                <td>{{ hymn_schedule.hymn_number_k }}</td>
+                <td>{{ hymn_schedule.hymn_topic_k }}</td>
+                <td>{{ hymn_schedule.teacher_k }}</td>
+                <td>{{ hymn_schedule.pianist_k }}</td>
+                <td>{{ hymn_schedule.assistant_k }}</td>
+                <td>{{ hymn_schedule.department_e }}</td>
+                <td>{{ hymn_schedule.hymn_number_e }}</td>
+                <td>{{ hymn_schedule.hymn_topic_e }}</td>
+                <td>{{ hymn_schedule.teacher_e }}</td>
+                <td>{{ hymn_schedule.pianist_e }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
