@@ -3,13 +3,7 @@
     {% include 'includes/popup_modal.html'%}
 {% endblock %}
 {% block content %}
-    {% if request.GET.error %}
-    <div class="alert alert-danger" role="alert">
-        {{ request.GET.error }}
-    </div>
-    {% endif %}
     <h2 align="center">詩頌課</h2>
-    {{ reformatted_df }}
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <tr>

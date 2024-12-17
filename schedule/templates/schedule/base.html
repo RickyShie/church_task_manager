@@ -15,7 +15,12 @@
     {% include 'includes/navbar.html' %}
     {% block assign_role_button %}{% endblock %}
     <div class="mx-4">
-        {% block content %}{% endblock %}
+        {% if request.GET.error %}
+        <div class="alert alert-danger" role="alert">
+            {{ request.GET.error }}
+        </div>
+        {% endif %}
+          {% block content %}{% endblock %}
     </div>
 
     <!-- Optional JavaScript -->
