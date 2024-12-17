@@ -47,110 +47,66 @@ def is_odd_saturday(given_saturday):
     return count % 2 == 1
 
 
+def create_schedule_if_not_exists(date, department, start_time, end_time, class_type):
+    """
+    Helper function to check if a schedule exists and create it if it does not.
+    """
+    if not Schedule.objects.filter(date=date, department=department, class_type=class_type).exists():
+        Schedule.objects.get_or_create(
+            department=department,
+            date=date,
+            start_time=datetime.strptime(start_time, '%H:%M').time(),
+            end_time=datetime.strptime(end_time, '%H:%M').time(),
+            class_type=class_type
+        )
+
 @admin.action(description="Generate Schedules for Upcoming Saturdays")
 def generate_schedules(modeladmin, request, queryset):
     departments = Department.objects.all()
-    # Get today's date
     today = datetime.today().date()
 
     # Calculate the number of days to the next Saturday
     days_to_next_saturday = (5 - today.weekday()) % 7 + 7
 
-    # Generate the next 4 Saturdays excluding the current Saturday
+    # Generate the next 12 Saturdays
     saturdays = [
         today + timedelta(days=days_to_next_saturday + i * 7)
-        for i in range(12)
+        for i in range(14)
     ]
+
+    # Class Type constants
+    WORSHIP_CLASS = '崇拜'
+    ACTIVITY = '共習'
+    HYMN_CLASS = '詩頌'
 
     for date in saturdays:
         for department in departments:
-            if not Schedule.objects.filter(date=date, department=department, class_type=WORSHIP_CLASS).exists():
-                if department.name == PRE_KINDERGARTEN:
-                    Schedule.objects.create(
-                        department=department,
-                        date=date,
-                        start_time=datetime.strptime('14:00', STRPTIME_FORMAT).time(),
-                        end_time=datetime.strptime('14:30', STRPTIME_FORMAT).time(),
-                        class_type=WORSHIP_CLASS
-                    )
-                    Schedule.objects.create(
-                        department=department,
-                        date=date,
-                        start_time=datetime.strptime('14:40', STRPTIME_FORMAT).time(),
-                        end_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                        class_type=ACTIVITY
-                    )
-                elif department.name == KINDERGARTEN:
-                    Schedule.objects.create(
-                        department=department,
-                        date=date,
-                        start_time=datetime.strptime('11:30', STRPTIME_FORMAT).time(),
-                        end_time=datetime.strptime('12:00', STRPTIME_FORMAT).time(),
-                        class_type=HYMN_CLASS
-                    )
-                    Schedule.objects.create(
-                        department=department,
-                        date=date,
-                        start_time=datetime.strptime('14:00', STRPTIME_FORMAT).time(),
-                        end_time=datetime.strptime('14:35', STRPTIME_FORMAT).time(),
-                        class_type=WORSHIP_CLASS
-                    )
-                    Schedule.objects.create(
-                        department=department,
-                        date=date,
-                        start_time=datetime.strptime('14:40', STRPTIME_FORMAT).time(),
-                        end_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                        class_type=ACTIVITY
-                    )
-                elif department.name == ELEMENTARY_1 or department.name == ELEMENTARY_1_CN_JP \
-                    or department.name == ELEMENTARY_2 or department.name == JUNIOR or department.name == JAPANESE:
-                    Schedule.objects.create(
-                        department=department,
-                        date=date,
-                        start_time=datetime.strptime('14:00', STRPTIME_FORMAT).time(),
-                        end_time=datetime.strptime('14:55', STRPTIME_FORMAT).time(),
-                        class_type=WORSHIP_CLASS
-                    )
-                    if department.name == JUNIOR or department.name == JAPANESE:
-                        Schedule.objects.create(
-                            department=department,
-                            date=date,
-                            start_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                            end_time=datetime.strptime('15:30', STRPTIME_FORMAT).time(),
-                            class_type=ACTIVITY
-                        )
-                    if is_odd_saturday(date) and (department.name == ELEMENTARY_1 or department.name == ELEMENTARY_1_CN_JP):
-                        Schedule.objects.create(
-                            department=department,
-                            date=date,
-                            start_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                            end_time=datetime.strptime('15:30', STRPTIME_FORMAT).time(),
-                            class_type=HYMN_CLASS
-                        )
-                    elif is_odd_saturday(date) and department.name == ELEMENTARY_2:
-                        Schedule.objects.create(
-                            department=department,
-                            date=date,
-                            start_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                            end_time=datetime.strptime('15:30', STRPTIME_FORMAT).time(),
-                            class_type=ACTIVITY
-                        )
-                    elif not is_odd_saturday(date) and (department.name == ELEMENTARY_1 or department.name == ELEMENTARY_1_CN_JP):
-                        Schedule.objects.create(
-                            department=department,
-                            date=date,
-                            start_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                            end_time=datetime.strptime('15:30', STRPTIME_FORMAT).time(),
-                            class_type=ACTIVITY
-                        )
-                    elif not is_odd_saturday(date) and department.name == ELEMENTARY_2:
-                        Schedule.objects.create(
-                            department=department,
-                            date=date,
-                            start_time=datetime.strptime('15:00', STRPTIME_FORMAT).time(),
-                            end_time=datetime.strptime('15:30', STRPTIME_FORMAT).time(),
-                            class_type=HYMN_CLASS
-                        )
+            if department.name == PRE_KINDERGARTEN:
+                create_schedule_if_not_exists(date, department, '14:00', '14:30', WORSHIP_CLASS)
+                create_schedule_if_not_exists(date, department, '14:40', '15:00', ACTIVITY)
+
+            elif department.name == KINDERGARTEN:
+                create_schedule_if_not_exists(date, department, '11:30', '12:00', HYMN_CLASS)
+                create_schedule_if_not_exists(date, department, '14:00', '14:35', WORSHIP_CLASS)
+                create_schedule_if_not_exists(date, department, '14:40', '15:00', ACTIVITY)
+
+            elif department.name in [ELEMENTARY_1, ELEMENTARY_1_CN_JP, ELEMENTARY_2, JUNIOR, JAPANESE]:
+                create_schedule_if_not_exists(date, department, '14:00', '14:55', WORSHIP_CLASS)
+
+                if department.name in [JUNIOR, JAPANESE]:
+                    create_schedule_if_not_exists(date, department, '15:00', '15:30', ACTIVITY)
+
+                # Handle odd/even Saturday logic
+                if is_odd_saturday(date):
+                    if department.name in [ELEMENTARY_1, ELEMENTARY_1_CN_JP]:
+                        create_schedule_if_not_exists(date, department, '15:00', '15:30', HYMN_CLASS)
+                    elif department.name == ELEMENTARY_2:
+                        create_schedule_if_not_exists(date, department, '15:00', '15:30', ACTIVITY)
+                else:  # Even Saturday logic
+                    if department.name in [ELEMENTARY_1, ELEMENTARY_1_CN_JP]:
+                        create_schedule_if_not_exists(date, department, '15:00', '15:30', ACTIVITY)
+                    elif department.name == ELEMENTARY_2:
+                        create_schedule_if_not_exists(date, department, '15:00', '15:30', HYMN_CLASS)
 
 
 
