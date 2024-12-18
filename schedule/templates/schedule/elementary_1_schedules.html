@@ -1,0 +1,32 @@
+{% extends 'schedule/base.html' %}
+{% block assign_role_button %}
+    {% include 'includes/popup_modal.html' %}
+{% endblock %}
+{% block content %}
+    <h2 align="center">幼年班安排表</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th class="text-center" scope="col">日期</th>
+                    <th class="text-center" scope="col">崇拜課</th>
+                    <th class="text-center" scope="col" colspan="3">全日文班</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">讚美詩</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">司琴</th>
+                    <th class="text-center align-middle" scope="col" colspan="3">共習、詩頌</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">講師</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">司琴</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">掃除当番</th>
+                </tr>
+                <tr>
+                    <th class="text-center" scope="col">時間</th>
+                    <th class="text-center" scope="col">14:00 - 14:55</th>
+                    <th class="text-center" scope="col">講師</th>
+                    <th class="text-center" scope="col">助教</th>
+                    <th class="text-center" scope="col">秩序管理</th>
+                    <th class="text-center" scope="col" colspan="3">15:00 - 15:30</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+{% endblock %}

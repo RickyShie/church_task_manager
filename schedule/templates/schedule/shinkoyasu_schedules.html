@@ -1,0 +1,20 @@
+{% extends 'schedule/base.html' %}
+{% block assign_role_button %}
+    {% include 'includes/popup_modal.html' %}
+{% endblock %}
+{% block content %}
+    <h2 align="center">新子安宗教教育排表</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th class="text-center" scope="col">日期</th>
+                    <th class="text-center" scope="col" colspan="3">課程內容</th>
+                    <th class="text-center" scope="col">老師</th>
+                    <th class="text-center" scope="col">司琴</th>
+                    <th class="text-center" scope="col" colspan="2">助教(家長)</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+{% endblock %}
