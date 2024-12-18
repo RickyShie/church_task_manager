@@ -12,6 +12,7 @@ venv/
 ENV/
 env/
 .env
+.venv
 
 # Ignore Django static and media files
 /staticfiles/
