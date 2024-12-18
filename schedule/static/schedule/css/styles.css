@@ -60,3 +60,23 @@ body {
     text-align: center;
     font-size: 14px;
 }
+
+/* Adjust font size for small screens */
+@media (max-width: 768px) {
+    table th, table td {
+        font-size: 8px; /* Further reduce font size */
+        white-space: nowrap; /* Prevent text wrapping */
+        padding: 2px; /* Reduce padding for tighter fit */
+    }
+
+    h2 {
+        font-size: 14px; /* Make the title smaller */
+        margin-top: 8px; /* Reduce top margin */
+        margin-bottom: 8px; /* Reduce bottom margin */
+    }
+
+    .table {
+        table-layout: auto; /* Allow table to adjust dynamically */
+        width: 100%; /* Ensure table fits screen */
+    }
+}

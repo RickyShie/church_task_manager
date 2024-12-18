@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.forms.models import model_to_dict
 import pandas as pd
 
+HYMN_CLASS = "詩頌"
 
 class AllSchedulesView(ListView):
     """
@@ -100,36 +101,65 @@ class HymnClassesView(ListView):
 
         # Loop through schedules and their role assignments
         for schedule in schedules:
-            for role_assignment in schedule.role_assignments.all():
+            if not schedule.role_assignments.exists():  # Handle schedules without role assignments
                 row = {
                     'date': schedule.date,
                     'department': schedule.department.name,
-                    'hymn_type': schedule.hymn_type.name if schedule.hymn_type else None,
+                    'hymn_type': schedule.hymn_type.name if schedule.hymn_type else '',
                     'hymn_number': schedule.hymn_number,
                     'hymn_topic': schedule.topic,
-                    'role': role_assignment.role.name if role_assignment.role else None,
-                    'person': role_assignment.person.name if role_assignment.person else None,
+                    'role': '',
+                    'person': '',
                 }
                 rows.append(row)
+            else:
+                for role_assignment in schedule.role_assignments.all():
+                    row = {
+                        'date': schedule.date,
+                        'department': schedule.department.name,
+                        'hymn_type': schedule.hymn_type.name if schedule.hymn_type else '',
+                        'hymn_number': schedule.hymn_number,
+                        'hymn_topic': schedule.topic,
+                        'role': role_assignment.role.name if role_assignment.role else '',
+                        'person': role_assignment.person.name if role_assignment.person else '',
+                    }
+                    rows.append(row)
+        # Check if rows list is empty
+        if not rows:
+            return pd.DataFrame()  # Return an empty DataFrame
 
         # Convert the list of rows into a DataFrame
         df = pd.DataFrame(rows)
 
+        # Replace '幼年班(中日文)' with '幼年班' in the 'department' column
+        df['department'] = df['department'].replace('幼年班(中日文)', '幼年班')
+
+        if df.empty:  # Handle empty DataFrame case
+            return pd.DataFrame()
+
+        # Replace NaN with empty strings.
+        df = df.fillna('')
+
         result = df.pivot_table(
-                index=['date', 'department', 'hymn_type', 'hymn_number', 'hymn_topic'],
-                columns='role',
-                values='person',
-                aggfunc='first'  # Use 'first' for non-duplicate roles
-            ).reset_index()
+            index=['date', 'department', 'hymn_type', 'hymn_number', 'hymn_topic'],
+            columns='role',
+            values='person',
+            aggfunc='first'  # Use 'first' for non-duplicate roles
+        ).reset_index()
 
         # Flatten MultiIndex columns
         result.columns.name = None
         result = result.rename_axis(None, axis=1)
-
-        # print(f"Processed DataFrame:\n{result}")
         return result
 
     def reshape_dateframe_to_fit_the_template_format(self, df: pd.DataFrame):
+        if df.empty:  # Check if DataFrame is empty
+            return pd.DataFrame(columns=[
+                'date',
+                'hymn_type_k', 'hymn_number_k', 'hymn_topic_k', 'teacher_k', 'assistant_k', 'pianist_k', 'department_k',
+                'hymn_number_e', 'hymn_topic_e', 'teacher_e', 'pianist_e', 'department_e'
+            ])
+
         # Step 1: Split Data into Two Groups
         kindergarten_df = df[df['department'] == '幼稚班'].copy()
         elementary_df = df[df['department'].isin(['幼年班', '幼年班(中日文)', '少年班'])].copy()
@@ -164,7 +194,10 @@ class HymnClassesView(ListView):
             'hymn_type_k', 'hymn_number_k', 'hymn_topic_k', 'teacher_k', 'assistant_k', 'pianist_k', 'department_k',
             'hymn_number_e', 'hymn_topic_e', 'teacher_e', 'pianist_e', 'department_e'
         ]
-        final_df = merged_df[final_columns]
+        final_df = merged_df.reindex(columns=final_columns, fill_value=None)
+
+        # Replace NaN values with empty strings
+        final_df = final_df.fillna('')
         return final_df
 
     def get_queryset(self):
@@ -175,7 +208,7 @@ class HymnClassesView(ListView):
         """
         # Fetch schedules with related RoleAssignments, Roles, and Persons
         hymn_schedules = Schedule.objects.filter(
-            class_type='詩頌'
+            class_type=HYMN_CLASS
         ).prefetch_related('role_assignments__role', 'role_assignments__person')
 
         pivoted_schedules = self.pivot_schedules(hymn_schedules)
@@ -183,8 +216,6 @@ class HymnClassesView(ListView):
 
         # Convert DataFrame to list of dictionaries
         reformatted_list = reformatted_df.to_dict(orient='records')
-        print(f"reformatted_list: \n{reformatted_list}")
-
         return reformatted_list
 
 
@@ -217,7 +248,11 @@ class HymnClassesView(ListView):
         """
         context = super().get_context_data(**kwargs)
         context['hymn_schedules'] = self.get_queryset()
-        context['roles'] = ClassRole.objects.all()
+        context['schedules'] = Schedule.objects.filter(class_type=HYMN_CLASS).order_by('date')
+
+        # Definal the specific class roles you want to include in the dropdown.
+        allowed_roles = ['主領', '司琴', '助教']
+        context['roles'] = ClassRole.objects.filter(name__in=allowed_roles)
         context['persons'] = Teacher.objects.all()
 
         return context
