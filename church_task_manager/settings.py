@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,13 +78,16 @@ WSGI_APPLICATION = "church_task_manager.wsgi.application"
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'church_task_manager',
-        'USER': 'postgres',
-        'PASSWORD': 'Yaemiko0720',
-        'HOST': 'localhost',  # or the IP address of your PostgreSQL server
-        'PORT': '5432',       # Default PostgreSQL port
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
+        'HOST': config('DATABASE_HOST'),  # or the IP address of your PostgreSQL server
+        'PORT': config('DATABASE_PORT'),       # Default PostgreSQL port
     }
 }
+
+# Secret Key
+SECRET_KEY = config('SECRET_KEY')
 
 
 # Password validation
