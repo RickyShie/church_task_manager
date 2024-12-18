@@ -1,6 +1,6 @@
-{% extends 'schedule/base.html'%}
+{% extends 'schedule/base.html' %}
 {% block assign_role_button %}
-    {% include 'includes/popup_modal.html'%}
+    {% include 'includes/popup_modal.html' %}
 {% endblock %}
 {% block content %}
     <h2 align="center">幼幼班</h2>
@@ -13,7 +13,6 @@
                     <th class="text-center align-middle" scope="col" rowspan="2">講師</th>
                     <th class="text-center" scope="col">共習課</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">助教</th>
-                    <th class="text-center align-middle" scope="col" rowspan="2">助教</th>
                 </tr>
                 <tr>
                     <th class="text-center" scope="col">時間</th>
@@ -24,8 +23,13 @@
             <tbody>
                 {% for worship_schedule in worship_schedules %}
                     <tr>
+                        <!-- Date -->
                         <td>{{ worship_schedule.date }}</td>
+
+                        <!-- Worship Class -->
                         <td>{{ worship_schedule.topic }}</td>
+
+                        <!-- Worship Teacher -->
                         <td>
                             {% for teacher in worship_teachers %}
                                 {% if teacher.schedule__date == worship_schedule.date %}
@@ -33,6 +37,8 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
+
+                        <!-- Activity Class -->
                         <td>
                             {% for activity_schedule in activity_schedules %}
                                 {% if activity_schedule.date == worship_schedule.date %}
@@ -40,25 +46,13 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
-                        <!-- Distinct Assistants -->
+
+                        <!-- Assistants -->
                         <td>
                             {% with assistants=activity_assistants|dictsort:"schedule__date" %}
                                 {% for assistant in assistants %}
                                     {% if assistant.schedule__date == worship_schedule.date %}
-                                        {% if forloop.counter == 1 %}
-                                            {{ assistant.person__name }}
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endwith %}
-                        </td>
-                        <td>
-                            {% with assistants=activity_assistants|dictsort:"schedule__date" %}
-                                {% for assistant in assistants %}
-                                    {% if assistant.schedule__date == worship_schedule.date %}
-                                        {% if forloop.counter == 2 %}
-                                            {{ assistant.person__name }}
-                                        {% endif %}
+                                        {{ assistant.person__name }}<br>
                                     {% endif %}
                                 {% endfor %}
                             {% endwith %}
@@ -68,5 +62,4 @@
             </tbody>
         </table>
     </div>
-
 {% endblock %}
