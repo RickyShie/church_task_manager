@@ -1,0 +1,14 @@
+# Check the status of your changes
+git status
+
+# Stage all changes (or specific files)
+git add .
+
+# Commit the changes with a clear message
+git commit -m "Your descriptive commit message"
+
+# Pull remote changes to ensure your local branch is up-to-date
+git pull origin main --rebase
+
+# Push your changes to GitHub
+git push origin main
