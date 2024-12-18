@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # Ignore logs
 *.log
@@ -10,10 +11,11 @@ __pycache__/
 venv/
 ENV/
 env/
+.env
 
 # Ignore Django static and media files
-staticfiles/
-media/
+/staticfiles/
+/media/
 
 # Ignore SQLite database
 *.sqlite3
