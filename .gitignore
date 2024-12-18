@@ -7,6 +7,9 @@ __pycache__/
 # Ignore logs
 *.log
 
+# Ignore CSV files
+*.csv
+
 # Ignore virtual environment
 venv/
 ENV/

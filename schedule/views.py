@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.shortcuts import redirect, render
 from django.core.exceptions import ValidationError
 from .models import Schedule, RoleAssignment, ClassRole, Teacher
@@ -86,7 +86,6 @@ class DepartmentScheduleView(ListView):
         return context
 
 # Here is my HymnClassesView.
-# I wonder if it is possible to pass more than one result to my template
 class HymnClassesView(ListView):
     """
     View to display schedules filtered by department and handle role assignments.
@@ -254,5 +253,44 @@ class HymnClassesView(ListView):
         allowed_roles = ['主領', '司琴', '助教']
         context['roles'] = ClassRole.objects.filter(name__in=allowed_roles)
         context['persons'] = Teacher.objects.all()
+
+        return context
+
+
+
+class PreKindergartenSchedulesView(TemplateView):
+    """
+    A custom view for rendering schedules and role assignments in a format suitable for hymn classes.
+    """
+    template_name = 'schedule/pre_kindergarten_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Filter schedules for '崇拜' (Worship Class)
+        worship_schedules = Schedule.objects.filter(class_type='崇拜', department__name='幼幼班').values('date', 'topic')
+
+        # Filter role assignments for '崇拜' (Teacher Role)
+        worship_teachers = RoleAssignment.objects.filter(
+            schedule__class_type='崇拜',
+            schedule__department__name='幼幼班',
+            role__name='講師'
+        ).values('schedule__date', 'person__name')
+
+        # Filter schedules for '共習' (Activity Class)
+        activity_schedules = Schedule.objects.filter(class_type='共習', department__name='幼幼班').values('date', 'topic')
+
+        # Filter role assignments for '共習' (Assistant Role)
+        activity_assistants = RoleAssignment.objects.filter(
+            schedule__class_type='共習',
+            schedule__department__name='幼幼班',
+            role__name='助教'
+        ).values('schedule__date', 'person__name')
+
+        # Organize data into the context
+        context['worship_schedules'] = worship_schedules
+        context['worship_teachers'] = worship_teachers
+        context['activity_schedules'] = activity_schedules
+        context['activity_assistants'] = activity_assistants
 
         return context

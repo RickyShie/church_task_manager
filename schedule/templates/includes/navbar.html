@@ -8,9 +8,9 @@
                 <a class="nav-link nav-hover {% if department_name == '詩頌課' %}nav-item active{% endif %}" href="{% url 'hymn_class_schedules'%}">詩頌課</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '幼幼班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='幼幼班' %}">幼幼班</a>
+                <a class="nav-link nav-hover {% if department_name == '幼幼班' %}nav-item active{% endif %}" href="{% url 'pre_kindergarten_schedules'%}">幼幼班</a>
             </li>
-            <li class="nav-item">
+            {% comment %} <li class="nav-item">
                 <a class="nav-link nav-hover {% if department_name == '幼稚班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='幼稚班' %}">幼稚班</a>
             </li>
             <li class="nav-item">
@@ -36,7 +36,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link nav-hover {% if department_name == '宗教教育總表' %}nav-item active{% endif %}" href="{% url 'all_schedules' %}">宗教教育總表</a>
-            </li>
+            </li> {% endcomment %}
         </ul>
     </div>
 </nav>
