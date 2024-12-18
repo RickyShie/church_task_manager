@@ -8,6 +8,20 @@ from django.forms.models import model_to_dict
 import pandas as pd
 
 HYMN_CLASS = "詩頌"
+WORSHIP_CLASS = "崇拜"
+ACTIVITY_CLASS = "共習"
+PRE_KINDERGARTEN = "幼幼班"
+KINDERGARTEN = "幼稚班"
+ELEMENTARY_1 = "幼年班"
+ELEMENTARY_1_CN_JP = "幼年班(中日文)"
+ELEMENTARY_2 = "少年班"
+JUNIOR = "青教組"
+JUNIOR_JP = "日文班"
+PIANICA = "口風琴班"
+SHINKOYASU = "新子安"
+ALL_RE_SCHEDULES = "宗教教育總表"
+
+
 
 class AllSchedulesView(ListView):
     """
@@ -260,37 +274,43 @@ class HymnClassesView(ListView):
 
 class PreKindergartenSchedulesView(TemplateView):
     """
-    A custom view for rendering schedules and role assignments in a format suitable for hymn classes.
+    A custom view for rendering schedules and role assignments in a format suitable for pre_kindergarten classes.
     """
     template_name = 'schedule/pre_kindergarten_schedules.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Filter schedules for '崇拜' (Worship Class)
-        worship_schedules = Schedule.objects.filter(class_type='崇拜', department__name='幼幼班').values('date', 'topic')
+        # Filter and sort schedules for '崇拜' (Worship Class)
+        worship_schedules = Schedule.objects.filter(
+            class_type=WORSHIP_CLASS,
+            department__name=PRE_KINDERGARTEN
+        ).order_by('date').values('date', 'topic')
 
-        # Filter role assignments for '崇拜' (Teacher Role)
+        # Filter and sort role assignments for '崇拜' (Teacher Role)
         worship_teachers = RoleAssignment.objects.filter(
-            schedule__class_type='崇拜',
-            schedule__department__name='幼幼班',
+            schedule__class_type=WORSHIP_CLASS,
+            schedule__department__name=PRE_KINDERGARTEN,
             role__name='講師'
-        ).values('schedule__date', 'person__name')
+        ).order_by('schedule__date').values('schedule__date', 'person__name')
 
-        # Filter schedules for '共習' (Activity Class)
-        activity_schedules = Schedule.objects.filter(class_type='共習', department__name='幼幼班').values('date', 'topic')
+        # Filter and sort schedules for '共習' (Activity Class)
+        activity_schedules = Schedule.objects.filter(
+            class_type=ACTIVITY_CLASS,
+            department__name=PRE_KINDERGARTEN
+        ).order_by('date').values('date', 'topic')
 
-        # Filter role assignments for '共習' (Assistant Role)
+        # Filter and sort role assignments for '共習' (Assistant Role)
         activity_assistants = RoleAssignment.objects.filter(
-            schedule__class_type='共習',
-            schedule__department__name='幼幼班',
+            schedule__class_type=ACTIVITY_CLASS,
+            schedule__department__name=PRE_KINDERGARTEN,
             role__name='助教'
-        ).values('schedule__date', 'person__name')
+        ).order_by('schedule__date').values('schedule__date', 'person__name')
+        print(f"activity_assitants: \n\n{activity_assistants}\n\n")
 
         # Organize data into the context
         context['worship_schedules'] = worship_schedules
         context['worship_teachers'] = worship_teachers
         context['activity_schedules'] = activity_schedules
         context['activity_assistants'] = activity_assistants
-
         return context
