@@ -86,6 +86,7 @@ class Schedule(models.Model):
         ('崇拜', '崇拜'),
         ('詩頌', '詩頌'),
         ('共習', '共習'),
+        ('口風琴', '口風琴')
     ]
 
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
@@ -192,21 +193,21 @@ class RoleAssignment(models.Model):
                     f"from {conflict.schedule.start_time} to {conflict.schedule.end_time}."
                 )
 
-            # Check if the teacher is assigned to another role in the same department on the same day
-            same_department_assignments = RoleAssignment.objects.filter(
-                person=self.person,
-                schedule__date=self.schedule.date,
-                schedule__department=self.schedule.department
-            ).exclude(id=self.id)  # Exclude the current instance being validated
+            # # Check if the teacher is assigned to another role in the same department on the same day
+            # same_department_assignments = RoleAssignment.objects.filter(
+            #     person=self.person,
+            #     schedule__date=self.schedule.date,
+            #     schedule__department=self.schedule.department
+            # ).exclude(id=self.id)  # Exclude the current instance being validated
 
-            if same_department_assignments.exists():
-                existing_role = same_department_assignments.first().role
-                department_name = self.schedule.department.name if self.schedule.department else "Unknown Department"
+            # if same_department_assignments.exists():
+            #     existing_role = same_department_assignments.first().role
+            #     department_name = self.schedule.department.name if self.schedule.department else "Unknown Department"
 
-                raise ValidationError(
-                    f"{self.person.name} is already assigned to the role '{existing_role}' in the '{department_name}' department "
-                    f"on {self.schedule.date}. A teacher can only have one role per department per day."
-                )
+            #     raise ValidationError(
+            #         f"{self.person.name} is already assigned to the role '{existing_role}' in the '{department_name}' department "
+            #         f"on {self.schedule.date}. A teacher can only have one role per department per day."
+            #     )
 
     def save(self, *args, **kwargs):
         """
