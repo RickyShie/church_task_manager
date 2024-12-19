@@ -154,12 +154,34 @@ class RoleAssignmentAdmin(admin.ModelAdmin):
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     ordering = ["id"]
-    list_display = ["id", "date", "start_time", "end_time", "department", "class_type", "topic", "hymn_type", "hymn_number"]
+    list_display = [
+        "id", 
+        "date", 
+        "start_time", 
+        "end_time", 
+        "department", 
+        "class_type", 
+        "topic", 
+        "hymn_type", 
+        "hymn_number", 
+        "get_role_assignments"
+    ]
     list_editable = ["date"]
     list_filter = [("date", DateFieldListFilter), "department", "class_type"]
     date_hierarchy = "date"
     actions = [generate_schedules]
-    search_fields = ["date", "department__name", "class_type"]  # Enable search for these fields
+    search_fields = ["date", "department__name", "class_type"]
+
+    def get_role_assignments(self, obj):
+        """
+        Returns a formatted string of all RoleAssignment objects attached to this schedule.
+        """
+        role_assignments = obj.role_assignments.all()
+        return ", ".join(
+            f"{assignment.role.name}: {assignment.person.name if assignment.person else 'Unassigned'}"
+            for assignment in role_assignments
+        )
+    get_role_assignments.short_description = "Role Assignments"
 
 @admin.register(HymnType)
 class HymnTypeAdmin(admin.ModelAdmin):

@@ -314,3 +314,88 @@ class PreKindergartenSchedulesView(TemplateView):
         context['activity_schedules'] = activity_schedules
         context['activity_assistants'] = activity_assistants
         return context
+
+
+class KindergartenSchedulesView(TemplateView):
+    """
+    A custom view for rendering schedules and role assignments in a format suitable for kindergarten classes.
+    """
+    template_name = 'schedule/kindergarten_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Filter schedules for '詩頌' (Hymn Class)
+        hymn_class_schedules = Schedule.objects.filter(class_type=HYMN_CLASS, department__name=KINDERGARTEN).values('hymn_number', 'topic')
+
+        # Filter role assignments for '詩頌' (Teacher Role)
+        hymn_class_teachers = RoleAssignment.objects.filter(
+            schedule__class_type=HYMN_CLASS,
+            schedule__department__name=KINDERGARTEN,
+            role__name='老師'
+        )
+        # Filter role assignments for '詩頌' (Pianist Role)
+        hymn_class_pianists = RoleAssignment.objects.filter(
+            schedule__class_type=HYMN_CLASS,
+            schedule__department__name=KINDERGARTEN,
+            role__name='司琴'
+        )
+        # Filter role assignments for '詩頌'
+
+        print(f'context: \n{context}')
+
+        return context
+
+class Elementary1SchedulesView(TemplateView):
+
+    template_name = 'schedule/elementary_1_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+class Elementary1CNJPSchedulesView(TemplateView):
+
+    template_name = 'schedule/elementary_1_cn_jp_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+class Elementary2SchedulesView(TemplateView):
+
+    template_name = 'schedule/elementary_2_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+class JuniorSchedulesView(TemplateView):
+
+    template_name = 'schedule/junior_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+class JuniorJPSchedulesView(TemplateView):
+
+    template_name = 'schedule/junior_jp_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+class PianicaSchedulesView(TemplateView):
+
+    template_name = 'schedule/pianica_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+class ShinkoyasuSchedulesView(TemplateView):
+
+    template_name = 'schedule/shinkoyasu_schedules.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)

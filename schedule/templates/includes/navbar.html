@@ -5,38 +5,38 @@
     <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '詩頌課' %}nav-item active{% endif %}" href="{% url 'hymn_class_schedules'%}">詩頌課</a>
+                <a class="nav-link nav-hover {% if department_name == '詩頌課' %}nav-item active{% endif %}" href="{% url 'hymn_class_schedules' %}">詩頌課</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '幼幼班' %}nav-item active{% endif %}" href="{% url 'pre_kindergarten_schedules'%}">幼幼班</a>
-            </li>
-            {% comment %} <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '幼稚班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='幼稚班' %}">幼稚班</a>
+                <a class="nav-link nav-hover {% if department_name == '幼幼班' %}nav-item active{% endif %}" href="{% url 'pre_kindergarten_schedules' %}">幼幼班</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '幼年班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='幼年班' %}">幼年班</a>
+                <a class="nav-link nav-hover {% if department_name == '幼稚班' %}nav-item active{% endif %}" href="{% url 'kindergarten_schedules' %}">幼稚班</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '幼年班(中日文)' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='幼年班(中日文)' %}">幼年班(中日文)</a>
+                <a class="nav-link nav-hover {% if department_name == '幼年班' %}nav-item active{% endif %}" href="{% url 'elementary_1_schedules' %}">幼年班</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '少年班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='少年班' %}">少年班</a>
+                <a class="nav-link nav-hover {% if department_name == '幼年班(中日文)' %}nav-item active{% endif %}" href="{% url 'elementary_1_cn_jp_schedules' %}">幼年班(中日文)</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '青教組' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='青教組' %}">青教組</a>
+                <a class="nav-link nav-hover {% if department_name == '少年班' %}nav-item active{% endif %}" href="{% url 'elementary_2_schedules'%}">少年班</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '日文班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='日文班' %}">日文班</a>
+                <a class="nav-link nav-hover {% if department_name == '青教組' %}nav-item active{% endif %}" href="{% url 'junior_schedules' %}">青教組</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '口風琴班' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='口風琴班' %}">口風琴班</a>
+                <a class="nav-link nav-hover {% if department_name == '日文班' %}nav-item active{% endif %}" href="{% url 'junior_jp_schedules' %}">日文班</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-hover {% if department_name == '新子安' %}nav-item active{% endif %}" href="{% url 'department_schedules' department_name='新子安' %}">新子安</a>
+                <a class="nav-link nav-hover {% if department_name == '口風琴班' %}nav-item active{% endif %}" href="{% url 'pianica_schedules' %}">口風琴班</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-hover {% if department_name == '新子安' %}nav-item active{% endif %}" href="{% url 'shinkoyasu_schedules' %}">新子安</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link nav-hover {% if department_name == '宗教教育總表' %}nav-item active{% endif %}" href="{% url 'all_schedules' %}">宗教教育總表</a>
-            </li> {% endcomment %}
+            </li>
         </ul>
     </div>
 </nav>
