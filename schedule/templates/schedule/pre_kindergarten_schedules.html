@@ -21,6 +21,18 @@
                     <th class="text-center" scope="col">14:40 - 15:00</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for schedule in pre_kindergarten_schedules %}
+                    <tr>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.worship_topic }}</td>
+                        <td>{{ schedule.worship_teacher }}</td>
+                        <td>{{ schedule.activity_topic }}</td>
+                        <td>{{ schedule.assistant_1 }}</td>
+                        <td>{{ schedule.assistant_2 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock %}

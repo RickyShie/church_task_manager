@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.forms.models import model_to_dict
 import pandas as pd
+from functools import reduce
+
 
 HYMN_CLASS = "詩頌"
 WORSHIP_CLASS = "崇拜"
@@ -21,6 +23,11 @@ PIANICA = "口風琴班"
 SHINKOYASU = "新子安"
 ALL_RE_SCHEDULES = "宗教教育總表"
 
+
+def merge_querysets_by_date(dataframes):
+    # Merge all DataFrames on 'date' column
+    result = reduce(lambda left, right: pd.merge(left, right, on='date', how='outer'), dataframes)
+    return result
 
 
 class AllSchedulesView(ListView):
@@ -282,10 +289,12 @@ class PreKindergartenSchedulesView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Filter and sort schedules for '崇拜' (Worship Class)
-        worship_schedules = Schedule.objects.filter(
+        worship_topic = Schedule.objects.filter(
             class_type=WORSHIP_CLASS,
             department__name=PRE_KINDERGARTEN
         ).order_by('date').values('date', 'topic')
+
+        worship_topic_df = pd.DataFrame(worship_topic).rename(columns={'topic': 'worship_topic'})
 
         # Filter and sort role assignments for '崇拜' (Teacher Role)
         worship_teachers = RoleAssignment.objects.filter(
@@ -293,26 +302,33 @@ class PreKindergartenSchedulesView(TemplateView):
             schedule__department__name=PRE_KINDERGARTEN,
             role__name='講師'
         ).order_by('schedule__date').values('schedule__date', 'person__name')
+        worship_teachers_df = pd.DataFrame(worship_teachers).rename(columns={'schedule__date': 'date', 'person__name': 'worship_teacher'})
 
         # Filter and sort schedules for '共習' (Activity Class)
-        activity_schedules = Schedule.objects.filter(
+        activity_topic = Schedule.objects.filter(
             class_type=ACTIVITY_CLASS,
             department__name=PRE_KINDERGARTEN
         ).order_by('date').values('date', 'topic')
-
-        # Filter and sort role assignments for '共習' (Assistant Role)
-        activity_assistants = RoleAssignment.objects.filter(
+        activity_topic_df = pd.DataFrame(activity_topic).rename(columns={'topic': 'activity_topic'})
+        # Filter and sort role assignments for '共習' (助教1)
+        activity_assistant1 = RoleAssignment.objects.filter(
             schedule__class_type=ACTIVITY_CLASS,
             schedule__department__name=PRE_KINDERGARTEN,
-            role__name='助教'
+            role__name='助教1'
         ).order_by('schedule__date').values('schedule__date', 'person__name')
-        print(f"activity_assitants: \n\n{activity_assistants}\n\n")
+        activity_assistant1_df = pd.DataFrame(activity_assistant1).rename(columns={'schedule__date': 'date', 'person__name': 'assistant_1'})
+        # Filter and sort role assignments for '共習' (助教2)
+        activity_assistant2 = RoleAssignment.objects.filter(
+            schedule__class_type=ACTIVITY_CLASS,
+            schedule__department__name=PRE_KINDERGARTEN,
+            role__name='助教2'
+        ).order_by('schedule__date').values('schedule__date', 'person__name')
+        activity_assistant2_df = pd.DataFrame(activity_assistant2).rename(columns={'schedule__date': 'date', 'person__name': 'assistant_2'})
 
-        # Organize data into the context
-        context['worship_schedules'] = worship_schedules
-        context['worship_teachers'] = worship_teachers
-        context['activity_schedules'] = activity_schedules
-        context['activity_assistants'] = activity_assistants
+        result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df, 
+                                             activity_topic_df, activity_assistant1_df, activity_assistant2_df])
+        print(f"Records to display on the template: \n{result_df.to_dict(orient='records')}")
+        context['pre_kindergarten_schedules'] = result_df.to_dict(orient='records')
         return context
 
 
