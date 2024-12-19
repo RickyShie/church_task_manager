@@ -148,6 +148,8 @@ class RoleAssignmentAdmin(admin.ModelAdmin):
                     "schedule__department__name", "schedule__class_type"]
     list_filter = [
         ("schedule__date", DateFieldListFilter), # Add a date filter for the schedule's date
+        "schedule__department__name",
+        "schedule__class_type",
         "role",
         "person"
     ]
@@ -163,15 +165,15 @@ class RoleAssignmentAdmin(admin.ModelAdmin):
 class ScheduleAdmin(admin.ModelAdmin):
     ordering = ["id"]
     list_display = [
-        "id", 
-        "date", 
-        "start_time", 
-        "end_time", 
-        "department", 
-        "class_type", 
-        "topic", 
-        "hymn_type", 
-        "hymn_number", 
+        "id",
+        "date",
+        "start_time",
+        "end_time",
+        "department",
+        "class_type",
+        "topic",
+        "hymn_type",
+        "hymn_number",
         "get_role_assignments"
     ]
     list_editable = ["date"]
