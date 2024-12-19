@@ -144,8 +144,16 @@ class ClassRoleAdmin(admin.ModelAdmin):
 @admin.register(RoleAssignment)
 class RoleAssignmentAdmin(admin.ModelAdmin):
     ordering = ["id"]
-    list_display = ["id", "person", "role", "schedule"]
+    list_display = ["id", "person", "role", "schedule__date",
+                    "schedule__department__name", "schedule__class_type"]
+    list_filter = [
+        ("schedule__date", DateFieldListFilter), # Add a date filter for the schedule's date
+        "role",
+        "person"
+    ]
     actions = ["delete_selected"]
+    search_fields = ["person__name", "role__name", "schedule__date"]  # Include date in the search fields
+    date_hierarchy = "schedule__date"
 
     # Enable live search for the 'schedule' field
     autocomplete_fields = ["schedule"]
