@@ -76,7 +76,7 @@ def get_role_assignments(class_type, department_name, role_name, column_name, va
     return result_df
 
 
-def get_schedule_topics(class_types, department_name, column_name, include_hymn_number=False):
+def get_schedule_topics(class_types, department_name, column_name, include_hymn_number=False, include_unit_number=False):
     """
     Fetches schedules filtered by class type(s) and department and returns a DataFrame with renamed columns.
 
@@ -84,7 +84,8 @@ def get_schedule_topics(class_types, department_name, column_name, include_hymn_
     :param department_name: The name of the department to filter (e.g., PRE_KINDERGARTEN)
     :param column_name: The new column name for the topic
     :param include_hymn_number: Whether to include hymn_number in the DataFrame
-    :return: A DataFrame with date and topic columns
+    :param unit_number_column_name: The new column name for the unit_number field (optional)
+    :return: A DataFrame with date, topic, hymn_number, and optionally unit_number columns
     """
     filter_kwargs = {
         'department__name': department_name
@@ -96,17 +97,23 @@ def get_schedule_topics(class_types, department_name, column_name, include_hymn_
     else:
         filter_kwargs['class_type'] = class_types
 
-    schedules = Schedule.objects.filter(**filter_kwargs).order_by('date').values('date', 'topic', 'hymn_number')
+    # Fetch schedules
+    schedules = Schedule.objects.filter(**filter_kwargs).order_by('date').values('date', 'topic', 'hymn_number', 'unit_number')
     df = pd.DataFrame(schedules).rename(columns={'topic': column_name})
 
-    # Replace NaN with an empty string
+    # Replace NaN with an empty string for hymn_number
     df['hymn_number'] = df['hymn_number'].fillna('')
 
-    # Convert numeric values to integers where possible
+    # Convert numeric values in hymn_number to integers where possible
     df['hymn_number'] = df['hymn_number'].apply(
         lambda x: int(x) if isinstance(x, float) and not pd.isnull(x) else x
     )
 
+    # Rename the unit_number column if a new name is provided
+    if not include_unit_number:
+        df = df.drop(columns=['unit_number'], errors='ignore')
+
+    # Remove hymn_number column if include_hymn_number is False
     if not include_hymn_number:
         df = df.drop(columns=['hymn_number'], errors='ignore')
 
@@ -397,7 +404,7 @@ class KindergartenSchedulesView(TemplateView):
 
         # Fetch schedules and convert them to DataFrames
         hymn_topic_df = get_schedule_topics(HYMN_CLASS, KINDERGARTEN, 'hymn_topic', include_hymn_number=True)
-        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, KINDERGARTEN, 'worship_topic')
+        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, KINDERGARTEN, 'worship_topic', False, True)
         # Drop hymn_number column from worship_topic_df DataFrame.
         activity_topic_df = get_schedule_topics(ACTIVITY_CLASS, KINDERGARTEN, 'activity_topic')
 
@@ -422,7 +429,7 @@ class Elementary1SchedulesView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Fetch schedules and convert them to DataFrames
-        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, ELEMENTARY_1, 'worship_topic', include_hymn_number=True)
+        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, ELEMENTARY_1, 'worship_topic', include_hymn_number=True, include_unit_number=True)
         worship_topic_df.rename(columns={'hymn_number': 'worship_hymn_number'}, inplace=True)
         hymn_activity_topic_df = get_schedule_topics(class_types=[HYMN_CLASS, ACTIVITY_CLASS], department_name=ELEMENTARY_1, column_name='hymn_activity_topic', include_hymn_number=True)
         hymn_activity_topic_df.rename(columns={'hymn_number': 'hymn_hymn_number'}, inplace=True)
@@ -439,13 +446,12 @@ class Elementary1SchedulesView(TemplateView):
 
         result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df, worship_assistants_df, worship_disciplinarians_df, worship_pianists_df,
                                              hymn_activity_class_types_df, hymn_activity_topic_df, hymn_activity_teachers_df, hymn_activity_pianists_df])
-        print(f"result_df: \n{result_df}")
 
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
+        print(f"result_df: \n{result_df}")
 
         context['elementary1_schedules'] = result_df.to_dict(orient='records')
-        print(f"context_dictionaries. : \n{result_df.to_dict(orient='records')}")
         return context
 
 
@@ -457,7 +463,7 @@ class Elementary1CNJPSchedulesView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Fetch schedules and convert them to DataFrames
-        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, ELEMENTARY_1_CN_JP, 'worship_topic', include_hymn_number=True)
+        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, ELEMENTARY_1_CN_JP, 'worship_topic', include_hymn_number=True, include_unit_number=True)
         worship_topic_df.rename(columns={'hymn_number': 'worship_hymn_number'}, inplace=True)
         hymn_activity_topic_df = get_schedule_topics(class_types=[HYMN_CLASS, ACTIVITY_CLASS], department_name=ELEMENTARY_1_CN_JP, column_name='hymn_activity_topic', include_hymn_number=True)
         hymn_activity_topic_df.rename(columns={'hymn_number': 'hymn_hymn_number'}, inplace=True)
@@ -474,13 +480,11 @@ class Elementary1CNJPSchedulesView(TemplateView):
 
         result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df, worship_assistants_df, worship_disciplinarians_df, worship_pianists_df,
                                              hymn_activity_class_types_df, hymn_activity_topic_df, hymn_activity_teachers_df, hymn_activity_pianists_df])
-        print(f"result_df: \n{result_df}")
 
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
 
         context['elementary1_schedules'] = result_df.to_dict(orient='records')
-        print(f"context_dictionaries. : \n{result_df.to_dict(orient='records')}")
         return context
 
 
@@ -489,7 +493,33 @@ class Elementary2SchedulesView(TemplateView):
     template_name = 'schedule/elementary_2_schedules.html'
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+
+        # Fetch schedules and convert them to DataFrames
+        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, ELEMENTARY_2, 'worship_topic', include_hymn_number=True)
+        worship_topic_df.rename(columns={'hymn_number': 'worship_hymn_number'}, inplace=True)
+        print(f"worship_unit_numbers_df: \n{worship_topic_df}")
+        hymn_activity_topic_df = get_schedule_topics(class_types=[HYMN_CLASS, ACTIVITY_CLASS], department_name=ELEMENTARY_1, column_name='hymn_activity_topic')
+
+        hymn_activity_class_types_df = get_role_assignments(class_type=[HYMN_CLASS, ACTIVITY_CLASS], department_name=ELEMENTARY_1, role_name='講師', column_name='class_type', value_field='schedule__class_type')
+
+        # Fetch role assignments and convert them to DataFrames
+        worship_teachers_df = get_role_assignments(WORSHIP_CLASS, ELEMENTARY_1, '講師', 'worship_teacher')
+        worship_assistants_df = get_role_assignments(WORSHIP_CLASS, ELEMENTARY_1, '助教1', 'worship_assistant')
+        worship_disciplinarians_df = get_role_assignments(WORSHIP_CLASS, ELEMENTARY_1, '秩序管理', 'worship_disciplinarian')
+        hymn_activity_teachers_df = get_role_assignments(class_type=[HYMN_CLASS, ACTIVITY_CLASS], department_name=ELEMENTARY_1, role_name='講師', column_name='hymn_acitivity_teacher')
+        hymn_activity_pianists_df = get_role_assignments(class_type=[HYMN_CLASS, ACTIVITY_CLASS], department_name=ELEMENTARY_1, role_name='司琴', column_name='hymn_activity_pianist')
+
+        result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df, worship_assistants_df, worship_disciplinarians_df,
+                                             hymn_activity_class_types_df, hymn_activity_topic_df, hymn_activity_teachers_df, hymn_activity_pianists_df])
+        print(f"result_df: \n{result_df}")
+
+        # Replace NaN with empty strings.
+        result_df.fillna('', inplace=True)
+
+        context['elementary2_schedules'] = result_df.to_dict(orient='records')
+        print(f"context_dictionaries. : \n{result_df.to_dict(orient='records')}")
+        return context
 
 
 class JuniorSchedulesView(TemplateView):

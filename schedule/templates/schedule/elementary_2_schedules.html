@@ -9,7 +9,7 @@
             <thead>
                 <tr>
                     <th class="text-center" scope="col">日期</th>
-                    <th class="text-center" scope="col">崇拜課</th>
+                    <th class="text-center" scope="col" colspan="2">崇拜課</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">講師</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">助教</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">秩序管理</th>
@@ -19,10 +19,26 @@
                 </tr>
                 <tr>
                     <th class="text-center" scope="col">時間</th>
-                    <th class="text-center" scope="col">14:00 - 14:55</th>
+                    <th class="text-center" scope="col" colspan="2">14:00 - 14:55</th>
                     <th class="text-center" scope="col">15:00 - 15:30</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for schedule in elementary2_schedules %}
+                    <tr>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.worship_unit_number }}</td>
+                        {% comment %} <td>{{ schedule.worship_topic }}</td>
+                        <td>{{ schedule.worship_teacher }}</td>
+                        <td>{{ schedule.worship_assistant }}</td>
+                        <td>{{ schedule.worship_disciplinarian }}</td>
+                        <td>{{ schedule.class_type }}</td>
+                        <td>{{ schedule.hymn_activity_topic }}</td>
+                        <td>{{ schedule.hymn_activity_teacher }}</td>
+                        <td>{{ schedule.hymn_activity_pianist }}</td> {% endcomment %}
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock %}
