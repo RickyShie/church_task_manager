@@ -10,7 +10,7 @@
                 <tr>
                     <th class="text-center" scope="col">日期</th>
                     <th class="text-center" scope="col">崇拜課</th>
-                    <th class="text-center" scope="col" colspan="3">中日文班</th>
+                    <th class="text-center" scope="col" colspan="3">全日文班</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">讚美詩</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">司琴</th>
                     <th class="text-center align-middle" scope="col" colspan="3">共習、詩頌</th>
@@ -24,9 +24,29 @@
                     <th class="text-center" scope="col">講師</th>
                     <th class="text-center" scope="col">助教</th>
                     <th class="text-center" scope="col">秩序管理</th>
-                    <th class="text-center" scope="col" colspan="3">15:00 - 15:30</th>
+                    <th class="text-center">課程類別</th>
+                    <th class="text-center">曲目</th>
+                    <th class="text-center" scope="col">15:00 - 15:30</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for schedule in elementary1_schedules %}
+                    <tr>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.worship_topic }}</td>
+                        <td>{{ schedule.worship_teacher }}</td>
+                        <td>{{ schedule.worship_assistant }}</td>
+                        <td>{{ schedule.worship_disciplinarian }}</td>
+                        <td>{{ schedule.worship_hymn_number }}</td>
+                        <td>{{ schedule.worship_pianist}}</td>
+                        <td>{{ schedule.class_type }}</td>
+                        <td>{{ schedule.hymn_hymn_number }}</td>
+                        <td>{{ schedule.hymn_activity_topic }}</td>
+                        <td>{{ schedule.hymn_acitivity_teacher}}</td>
+                        <td>{{ schedule.hymn_activity_pianist}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock %}
