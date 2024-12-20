@@ -15,6 +15,20 @@
                     <th class="text-center" scope="col" colspan="2">助教(家長)</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for schedule in pianica_schedules %}
+                    <tr>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.class_type }}</td>
+                        <td>{{ schedule.hymn_type__name}}</td>
+                        <td>{{ schedule.topic }}</td>
+                        <td>{{ schedule.pianica_teacher }}</td>
+                        <td>{{ schedule.pianica_pianist }}</td>
+                        <td>{{ schedule.pianica_assistant_1 }}</td>
+                        <td>{{ schedule.pianica_assistant_2 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock %}

@@ -14,6 +14,7 @@ pd.set_option('display.width', 500)
 HYMN_CLASS = "詩頌"
 WORSHIP_CLASS = "崇拜"
 ACTIVITY_CLASS = "共習"
+PIANICA_CLASS = "口風琴"
 PRE_KINDERGARTEN = "幼幼班"
 KINDERGARTEN = "幼稚班"
 ELEMENTARY_1 = "幼年班"
@@ -576,7 +577,23 @@ class PianicaSchedulesView(TemplateView):
     template_name = 'schedule/pianica_schedules.html'
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+
+        pianica_topic_df = pd.DataFrame(Schedule.objects.filter(class_type__in=['口風琴', '詩頌'], department__name='口風琴班').values('date', 'class_type', 
+        'hymn_type__name','topic').order_by('date'))
+
+        pianica_teachers_df = get_role_assignments(class_type=[PIANICA_CLASS, HYMN_CLASS], department_name=PIANICA, role_name='老師', column_name='pianica_teacher')
+        pianica_pianists_df = get_role_assignments(class_type=[PIANICA_CLASS, HYMN_CLASS], department_name=PIANICA, role_name='司琴', column_name='pianica_pianist')
+        pianica_assistants_1_df = get_role_assignments(class_type=[PIANICA_CLASS, HYMN_CLASS], department_name=PIANICA, role_name='助教1', column_name='pianica_assistant_1')
+        pianica_assistatns_2_df = get_role_assignments(class_type=[PIANICA_CLASS, HYMN_CLASS], department_name=PIANICA, role_name='助教2', column_name='pianica_assistant_2')
+        result_df = merge_querysets_by_date([pianica_topic_df, pianica_teachers_df, pianica_pianists_df,
+                                             pianica_assistants_1_df, pianica_assistatns_2_df])
+        # Replace NaN with empty strings.
+        result_df.fillna('', inplace=True)
+        print(f"Result: \n{result_df}")
+        context['pianica_schedules'] = result_df.to_dict(orient='records')
+        print(result_df.to_dict(orient='records'))
+        return context
 
 
 class ShinkoyasuSchedulesView(TemplateView):
