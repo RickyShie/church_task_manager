@@ -551,7 +551,25 @@ class JuniorJPSchedulesView(TemplateView):
     template_name = 'schedule/junior_jp_schedules.html'
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+
+        # Fetch schedules and convert them to DataFrames
+        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, JUNIOR_JP, 'worship_topic', include_hymn_number=True, include_unit_number=True)
+        worship_topic_df.rename(columns={'hymn_number': 'worship_hymn_number'}, inplace=True)
+
+        activity_topic_df = get_schedule_topics(class_types=ACTIVITY_CLASS, department_name=JUNIOR_JP, column_name='activity_topic')
+
+        # Fetch role assignments and convert them to DataFrames
+        worship_teachers_df = get_role_assignments(WORSHIP_CLASS, JUNIOR_JP, '講師', 'worship_teacher')
+        activity_teachers_df = get_role_assignments(class_type=[HYMN_CLASS, ACTIVITY_CLASS], department_name=JUNIOR_JP, role_name='講師', column_name='activity_teacher')
+
+        result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df,
+                                             activity_topic_df, activity_teachers_df])
+        # Replace NaN with empty strings.
+        result_df.fillna('', inplace=True)
+
+        context['junior_jp_schedules'] = result_df.to_dict(orient='records')
+        return context
 
 class PianicaSchedulesView(TemplateView):
 

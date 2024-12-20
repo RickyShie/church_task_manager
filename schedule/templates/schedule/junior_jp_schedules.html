@@ -9,17 +9,29 @@
             <thead>
                 <tr>
                     <th class="text-center" scope="col">日期</th>
-                    <th class="text-center" scope="col">崇拜課</th>
+                    <th class="text-center" scope="col" colspan="2">崇拜課</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">講師</th>
                     <th class="text-center align-middle" scope="col">共習、詩頌</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">講師</th>
                 </tr>
                 <tr>
                     <th class="text-center" scope="col">時間</th>
-                    <th class="text-center" scope="col">14:00 - 14:55</th>
+                    <th class="text-center" scope="col" colspan="2">14:00 - 14:55</th>
                     <th class="text-center" scope="col">15:00 - 15:30</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for schedule in junior_jp_schedules %}
+                    <tr>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.unit_number }}</td>
+                        <td>{{ schedule.worship_topic }}</td>
+                        <td>{{ schedule.worship_teacher }}</td>
+                        <td>{{ schedule.activity_topic }}</td>
+                        <td>{{ schedule.activity_teacher }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock %}
