@@ -8,13 +8,30 @@
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th class="text-center" scope="col">日期</th>
-                    <th class="text-center" scope="col" colspan="3">課程內容</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">日期</th>
+                    <th class="text-center" scope="col" colspan="3">中午唱詩</th>
+                    <th class="text-center" scope="col" colspan="2">下午宗教教育</th>
+                </tr>
+                <tr>
                     <th class="text-center" scope="col">老師</th>
                     <th class="text-center" scope="col">司琴</th>
-                    <th class="text-center" scope="col" colspan="2">助教(家長)</th>
+                    <th class="text-center" scope="col">曲目</th>
+                    <th class="text-center" scope="col">老師</th>
+                    <th class="text-center" scope="col">助教</th>
                 </tr>
             </thead>
+            <tbody>
+                {% for schedule in shinkoyasu_schedules %}
+                    <tr>
+                        <td>{{ schedule.date }}</td>
+                        <td>{{ schedule.shinkoyasu_hymn_teacher }}</td>
+                        <td>{{ schedule.shinkoyasu_hymn_pianist }}</td>
+                        <td>{{ schedule.hymn_number }}</td>
+                        <td>{{ schedule.shinkoyasu_worship_teacher }}</td>
+                        <td>{{ schedule.shinkoyasu_worship_assistant }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 {% endblock %}

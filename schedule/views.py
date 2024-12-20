@@ -601,4 +601,16 @@ class ShinkoyasuSchedulesView(TemplateView):
     template_name = 'schedule/shinkoyasu_schedules.html'
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        shinkoyasu_hymn_numbers_df = pd.DataFrame(Schedule.objects.filter(class_type=HYMN_CLASS, department__name='新子安').values('date', 'hymn_number').order_by('date'))
+        shinkoyasu_hymn_teachers_df = get_role_assignments(HYMN_CLASS, SHINKOYASU, '老師', 'shinkoyasu_hymn_teacher')
+        shinkoyasu_hymn_pianists_df = get_role_assignments(HYMN_CLASS, SHINKOYASU, '司琴', 'shinkoyasu_hymn_pianist')
+        shinkoyasu_worship_teachers_df = get_role_assignments(WORSHIP_CLASS, SHINKOYASU, '老師', 'shinkoyasu_worship_teacher')
+        shinkoyasu_worship_assistants_df = get_role_assignments(WORSHIP_CLASS, SHINKOYASU, '助教1', 'shinkoyasu_worship_assistant')
+        result_df = merge_querysets_by_date([shinkoyasu_hymn_numbers_df, shinkoyasu_hymn_teachers_df, shinkoyasu_hymn_pianists_df,
+                                             shinkoyasu_worship_teachers_df, shinkoyasu_worship_assistants_df])
+        # Replace NaN with empty strings.
+        result_df.fillna('', inplace=True)
+        context['shinkoyasu_schedules'] = result_df.to_dict(orient='records')
+        print(result_df.to_dict(orient='records'))
+        return context
