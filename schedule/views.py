@@ -390,8 +390,31 @@ class PreKindergartenSchedulesView(TemplateView):
 
         result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df,
                                              activity_topic_df, activity_assistant1_df, activity_assistant2_df])
-        context['pre_kindergarten_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
+
+    def post(self, request, *args, **kwargs):
+        schedule_id = request.POST.get('schedule')
+        role_id = request.POST.get('role')
+        person_id = request.POST.get('person')
+
+        if schedule_id and role_id and person_id:
+            schedule = Schedule.objects.get(id=schedule_id)
+            role = ClassRole.objects.get(id=role_id)
+            person = Teacher.objects.get(id=person_id)
+
+            try:
+                # Create the RoleAssignment object
+                RoleAssignment.objects.create(schedule=schedule, role=role, person=person)
+            except ValidationError as e:
+                # Redirect with an error message as a query parameter
+                error_message = str(e)
+                department_name = self.kwargs.get('department_name')
+                url = f"{reverse('department_schedules', kwargs={'department_name': department_name})}?error={error_message}"
+                return HttpResponseRedirect(url)
+            else:
+                # Redirect back to the department schedules page
+                return redirect('department_schedules', department_name=self.kwargs.get('department_name'))
 
 
 class KindergartenSchedulesView(TemplateView):
@@ -419,7 +442,7 @@ class KindergartenSchedulesView(TemplateView):
         result_df = merge_querysets_by_date([hymn_topic_df, hymn_teachers_df, hymn_pianists_df, hymn_assistants_df,
                                              worship_topic_df, worship_teachers_df,
                                              activity_topic_df, activity_assistants_df])
-        context['kindergarten_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
 
 class Elementary1SchedulesView(TemplateView):
@@ -451,7 +474,7 @@ class Elementary1SchedulesView(TemplateView):
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
 
-        context['elementary1_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
 
 
@@ -484,7 +507,7 @@ class Elementary1CNJPSchedulesView(TemplateView):
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
 
-        context['elementary1_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
 
 
@@ -515,7 +538,7 @@ class Elementary2SchedulesView(TemplateView):
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
 
-        context['elementary2_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
 
 
@@ -543,7 +566,7 @@ class JuniorSchedulesView(TemplateView):
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
 
-        context['junior_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
 
 
@@ -569,7 +592,7 @@ class JuniorJPSchedulesView(TemplateView):
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
 
-        context['junior_jp_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         return context
 
 class PianicaSchedulesView(TemplateView):
@@ -591,7 +614,7 @@ class PianicaSchedulesView(TemplateView):
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
         print(f"Result: \n{result_df}")
-        context['pianica_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         print(result_df.to_dict(orient='records'))
         return context
 
@@ -611,6 +634,6 @@ class ShinkoyasuSchedulesView(TemplateView):
                                              shinkoyasu_worship_teachers_df, shinkoyasu_worship_assistants_df])
         # Replace NaN with empty strings.
         result_df.fillna('', inplace=True)
-        context['shinkoyasu_schedules'] = result_df.to_dict(orient='records')
+        context['schedules'] = result_df.to_dict(orient='records')
         print(result_df.to_dict(orient='records'))
         return context
