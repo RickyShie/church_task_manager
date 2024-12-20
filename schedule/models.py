@@ -94,6 +94,7 @@ class Schedule(models.Model):
     start_time = models.TimeField(null=False, blank=False)
     end_time = models.TimeField(null=False, blank=False)
     topic = models.CharField(max_length=500, null=True, blank=True)
+    unit_number = models.CharField(max_length=100, null=True, blank=True)
     class_type = models.CharField(max_length=50, choices=CLASS_TYPE_CHOICES)
     hymn_type = models.ForeignKey(HymnType, null=True, blank=True, on_delete=models.SET_NULL)
     hymn_number = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(1000)])
