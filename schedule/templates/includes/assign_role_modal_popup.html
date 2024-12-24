@@ -1,10 +1,10 @@
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#assignRoleModal">Assign a Role</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#assignRoleModal">安排老師</button>
 
 <div class="modal fade" id="assignRoleModal" tabindex="-1" role="dialog" aria-labelledby="assignRoleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="assignRoleModalLabel">Assign a Role</h5>
+        <h5 class="modal-title" id="assignRoleModalLabel">安排老師</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -12,11 +12,12 @@
       <form method="POST">
         {% csrf_token %}
         <div class="modal-body">
+          <div id="modal-error-message" class="mt-3"></div>
           <!-- Schedule Dropdown -->
             <div class="form-group">
-                <label for="schedule-select">Schedule</label>
+                <label for="schedule-select">選擇課表</label>
                 <select class="form-control select2" id="schedule-select" name="schedule" style="width: 100%;">
-                    {% for schedule in schedules %}
+                    {% for schedule in schedule_options %}
                         <option value="{{ schedule.id }}">{{ schedule.date }} - {{ schedule.department.name }} - {{ schedule.class_type }}</option>
                     {% endfor %}
                 </select>
@@ -24,7 +25,7 @@
 
             <!-- Role Dropdown -->
             <div class="form-group">
-                <label for="role-select">Role</label>
+                <label for="role-select">角色</label>
                 <select class="form-control" id="role-select" name="role">
                 {% for role in roles %}
                     <option value="{{ role.id }}">{{ role.name }}</option>
@@ -34,17 +35,17 @@
 
             <!-- Person Dropdown -->
             <div class="form-group">
-                <label for="person-select">Person</label>
+                <label for="person-select">教員</label>
                 <select class="form-control" id="person-select" name="person">
-                {% for person in persons %}
-                    <option value="{{ person.id }}">{{ person.name }}</option>
+                {% for teacher in teachers %}
+                    <option value="{{ teacher.id }}">{{ teacher.name }}</option>
                 {% endfor %}
                 </select>
             </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Assign Role</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉視窗</button>
+          <button type="submit" class="btn btn-primary">安排</button>
         </div>
       </form>
     </div>

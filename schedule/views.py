@@ -1,5 +1,6 @@
+from django.http import JsonResponse
 from django.views.generic import ListView, TemplateView
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.core.exceptions import ValidationError
 from .models import Schedule, RoleAssignment, ClassRole, Teacher
 from django.urls import reverse
@@ -7,6 +8,8 @@ from django.http import HttpResponseRedirect
 from django.forms.models import model_to_dict
 import pandas as pd
 from functools import reduce
+from collections import defaultdict
+from django.db.models import Q
 
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 500)
@@ -369,52 +372,85 @@ class HymnClassesView(ListView):
         return context
 
 
-
-class PreKindergartenSchedulesView(TemplateView):
-    """
-    A custom view for rendering schedules and role assignments in a format suitable for pre_kindergarten classes.
-    """
+# Here is the view I have been developing so far. I wonder how to redirect to the page where I made the post request instead of \
+# returning JSON responses, which are not user-friendly.
+class PreKindergartenSchedulesView(ListView):
     template_name = 'schedule/pre_kindergarten_schedules.html'
+    context_object_name = 'schedules'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_queryset(self):
 
-        # Fetch schedules and convert them to DataFrames
-        worship_topic_df = get_schedule_topics(WORSHIP_CLASS, PRE_KINDERGARTEN, 'worship_topic')
-        activity_topic_df = get_schedule_topics(ACTIVITY_CLASS, PRE_KINDERGARTEN, 'activity_topic')
+        combined_queryset = Schedule.objects.filter(
+            Q(class_type='崇拜') | Q(class_type='共習')
+        ).order_by('date').values('date', 'class_type', 'topic')
 
-        # Fetch role assignments and convert them to DataFrames
-        worship_teachers_df = get_role_assignments(WORSHIP_CLASS, PRE_KINDERGARTEN, '講師', 'worship_teacher')
-        activity_assistant1_df = get_role_assignments(ACTIVITY_CLASS, PRE_KINDERGARTEN, '助教1', 'assistant_1')
-        activity_assistant2_df = get_role_assignments(ACTIVITY_CLASS, PRE_KINDERGARTEN, '助教2', 'assistant_2')
+        role_assignments = RoleAssignment.objects.filter(
+            role__name__in=['講師', '助教1', '助教2']
+        ).order_by('schedule__date').values('schedule__date', 'role__name', 'person__name')
 
-        result_df = merge_querysets_by_date([worship_topic_df, worship_teachers_df,
-                                             activity_topic_df, activity_assistant1_df, activity_assistant2_df])
-        context['schedules'] = result_df.to_dict(orient='records')
-        return context
+        schedule_df = pd.DataFrame(combined_queryset)
+        roles_df = pd.DataFrame(role_assignments)
+
+        result = defaultdict(lambda: {
+            'date': '',
+            'worship_topic': '',
+            'activity_topic': '',
+            '講師': '',
+            '助教1': '',
+            '助教2': ''
+        })
+
+        for _, row in schedule_df.iterrows():
+            date = row['date']
+            class_type = row['class_type']
+            topic = row['topic']
+
+            result[date]['date'] = date
+            if class_type == '崇拜':
+                result[date]['worship_topic'] = topic
+            elif class_type == '共習':
+                result[date]['activity_topic'] = topic
+
+        for _, row in roles_df.iterrows():
+            date = row['schedule__date']
+            role = row['role__name']
+            person_name = row['person__name']
+
+            if role in result[date]:
+                result[date][role] = person_name
+
+        formatted_result = list(result.values())
+        return formatted_result
 
     def post(self, request, *args, **kwargs):
         schedule_id = request.POST.get('schedule')
         role_id = request.POST.get('role')
         person_id = request.POST.get('person')
 
-        if schedule_id and role_id and person_id:
-            schedule = Schedule.objects.get(id=schedule_id)
-            role = ClassRole.objects.get(id=role_id)
-            person = Teacher.objects.get(id=person_id)
+        if not schedule_id or not role_id or not person_id:
+            return HttpResponseRedirect(request.path + "?error=Missing required fields")
 
-            try:
-                # Create the RoleAssignment object
-                RoleAssignment.objects.create(schedule=schedule, role=role, person=person)
-            except ValidationError as e:
-                # Redirect with an error message as a query parameter
-                error_message = str(e)
-                department_name = self.kwargs.get('department_name')
-                url = f"{reverse('department_schedules', kwargs={'department_name': department_name})}?error={error_message}"
-                return HttpResponseRedirect(url)
-            else:
-                # Redirect back to the department schedules page
-                return redirect('department_schedules', department_name=self.kwargs.get('department_name'))
+        try:
+            schedule = get_object_or_404(Schedule, id=schedule_id)
+            role = get_object_or_404(ClassRole, id=role_id)
+            person = get_object_or_404(Teacher, id=person_id)
+
+            RoleAssignment.objects.create(schedule=schedule, role=role, person=person)
+
+            # Redirect back to the same page with a success message
+            return HttpResponseRedirect(request.path + "?success=Role assigned successfully")
+            # return JsonResponse({'success': True, 'message': 'Role assigned successfully.'})
+        except Exception as e:
+            # Redirect back to the same page with an error message
+            return HttpResponseRedirect(request.path + f"?error={str(e)}")
+            # return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['schedule_options'] = Schedule.objects.filter(department__name = PRE_KINDERGARTEN)
+        context['roles'] = ClassRole.objects.filter(name__in=['講師', '助教1', '助教2'])
+        context['teachers'] = Teacher.objects.all()
+        return context
 
 
 class KindergartenSchedulesView(TemplateView):

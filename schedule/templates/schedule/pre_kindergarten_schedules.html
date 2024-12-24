@@ -1,10 +1,13 @@
 {% extends 'schedule/base.html' %}
 {% block assign_role_button %}
-    {% include 'includes/popup_modal.html' %}
+    {% include 'includes/assign_role_modal_popup.html' %}
+{% endblock %}
+{% block add_schedule_button %}
+    {% comment %} {% include 'includes/'%} {% endcomment %}
 {% endblock %}
 {% block content %}
     <h2 align="center">幼幼班安排表</h2>
-    <div class="table-responsive">
+    <div class="table-responsive table-sm">
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -12,8 +15,8 @@
                     <th class="text-center" scope="col">崇拜課</th>
                     <th class="text-center align-middle" scope="col" rowspan="2">講師</th>
                     <th class="text-center" scope="col">共習課</th>
-                    <th class="text-center align-middle" scope="col" rowspan="2">助教</th>
-                    <th class="text-center align-middle" scope="col" rowspan="2">助教</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">助教1</th>
+                    <th class="text-center align-middle" scope="col" rowspan="2">助教2</th>
                 </tr>
                 <tr>
                     <th class="text-center" scope="col">時間</th>
@@ -24,12 +27,12 @@
             <tbody>
                 {% for schedule in schedules %}
                     <tr>
-                        <td>{{ schedule.date }}</td>
-                        <td>{{ schedule.worship_topic }}</td>
-                        <td>{{ schedule.worship_teacher }}</td>
-                        <td>{{ schedule.activity_topic }}</td>
-                        <td>{{ schedule.assistant_1 }}</td>
-                        <td>{{ schedule.assistant_2 }}</td>
+                        <td class="text-center">{{ schedule.date }}</td>
+                        <td class="text-center">{{ schedule.worship_topic }}</td>
+                        <td class="text-center">{{ schedule.講師 }}</td>
+                        <td class="text-center">{{ schedule.activity_topic }}</td>
+                        <td class="text-center">{{ schedule.助教1 }}</td>
+                        <td class="text-center">{{ schedule.助教2 }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

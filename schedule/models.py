@@ -1,3 +1,7 @@
+# Here are the Models I have created for my Django web app. I wonder if I could implement extra API endpoints other than the URLs I specified in the urls.py file. \
+# For example, to get all the schedules of a particular department and all RoleAssignment objects attached to each schedule. I want to access these API endpoints \
+# via Google Sheet. Give me step-by-step instructions.
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -170,8 +174,7 @@ class RoleAssignment(models.Model):
 
             if conflicting_role_assignments.exists():
                 raise ValidationError(
-                    f"The role '{self.role.name}' has already been assigned in this schedule. "
-                    f"Only '{TEACHING_ASSISTANT}' can be assigned multiple times."
+                    f"角色名稱為'{self.role.name}' 已經被安排在此課表中"
                 )  # Highlight End
 
         if self.person:
